@@ -22,6 +22,15 @@ My study aimed to replicate Experiment 2 of Li et al. (2016). The key finding of
 
 Original effect size, power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.  Considerations of feasibility for selecting planned sample size.
 
+The primary effect of interest in this replication was the interference effect in the congruent homophone condition (S+T+) relative to the neutral condition in Experiment 2. In the original study, this comparison was tested with a paired-samples t-test and was reported as t(23) = -2.787, p = .010. Using this result, the standardized within-subject effect size can be approximated as d_z = t / sqrt(n), which yields an estimated effect size of approximately d_z = 0.57.
+
+Using this effect size estimate and assuming a two-tailed paired-samples test with alpha = .05, the approximate sample sizes needed to detect an effect of this size are:
+- 80% power: 27 participants  
+- 90% power: 35 participants  
+- 95% power: 43 participants  
+
+The original Experiment 2 included 24 participants. For the replication, the planned target sample was 35 participants if feasible, because this would provide approximately 90% power while remaining realistic for recruitment. If recruitment constraints made this difficult, a minimum of 27 participants was planned so that the study would still achieve approximately 80% power.
+
 ### Planned Sample
 
 The planned sample consisted of adult Mandarin-English bilinguals recruited primarily via the Prolific online participant platform. If needed, additional participants would be recruited from the Stanford community to meet the target sample size. To match the original study as closely as possible, participants were required to be native speakers of Mandarin Chinese who learned English as a second language, had normal or corrected-to-normal vision, and were able to reliably name the colors red, yellow, blue, and green in English. In the original Experiment 2, participants were 24 graduate students, 14 of whom were female, ranging in age from 19 to 30 years. They had all begun learning English at age 9 or 10, and their average TOEFL score was reported as 81.6%.  
