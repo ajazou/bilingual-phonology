@@ -8,13 +8,13 @@ format:
     toc_depth: 3
 ---
 
-<!-- Replication reports should all use this template to standardize reporting across projects.  These reports will be public supplementary materials that accompany the summary report(s) of the aggregate results. -->
+<!-- This report follows a standardized template to ensure consistency across replication projects and is intended to serve as supplementary material accompanying the aggregate results of the project. -->
 
 ## Introduction
 
-Li et al. (2016) investigated whether phonological information from a bilingual speaker’s non-target language is automatically activated during speech production, and whether recent language use modulates this activation. In their study, Mandarin–English bilinguals were asked to name the ink color of Chinese characters in English via a Stroop task. The critical manipulation involved characters that were homophones of color words in Chinese (e.g., a character pronounced "hong2, 洪, flood" that is not the word for “hong2, 红, red”). In Experiment 1, these homophones did not significantly interfere with English color naming. However, in Experiment 2, participants first named the same characters aloud in Chinese before performing the English color-naming task, and under this condition, homophone trials produced significantly slower responses than neutral trials.
+Li et al. (2016) investigated whether phonological information from a bilingual speaker’s non-target language is automatically activated during speech production, and whether recent language use modulates this activation. In their study, Mandarin–English bilinguals were asked to name the ink color of Chinese characters in English via a Stroop task. The critical manipulation involved characters that were homophones of color words in Chinese (e.g., a character pronounced hong2, 洪 /hong2/ ("flood") that is not the word for 红 /hong2/ ("red”). In Experiment 1, these homophones did not significantly interfere with English color naming. However, in Experiment 2, participants first named the same characters aloud in Chinese before performing the English color-naming task, and under this condition, homophone trials produced significantly slower responses than neutral trials.
 
-My replication study aimed to replicate Experiment 2 of Li et al. (2016). The key finding of interest was the interference effect in the congruent homophone condition relative to the neutral condition during English color naming following prior Chinese character naming. Replicating this effect would provide support for the claim that recent use of a bilingual’s first language increases activation of its phonological representations, which can then interfere with production in a second language.
+My study aimed to replicate Experiment 2 of Li et al. (2016). The key finding of interest was the interference effect in the congruent homophone condition relative to the neutral condition during English color naming following prior Chinese character naming. Replicating this effect would provide support for the claim that recent use of a bilingual’s first language increases activation of its phonological representations, which can then interfere with production in a second language.
 
 ## Methods
 
@@ -24,25 +24,55 @@ Original effect size, power analysis for samples to achieve 80%, 90%, 95% power 
 
 ### Planned Sample
 
-Planned sample size and/or termination rule, sampling frame, known demographics if any, preselection rules if any.
+The planned sample consisted of adult Mandarin-English bilinguals recruited primarily via the Prolific online participant platform. If needed, additional participants would be recruited from the Stanford community to meet the target sample size. To match the original study as closely as possible, participants were required to be native speakers of Mandarin Chinese who learned English as a second language, had normal or corrected-to-normal vision, and were able to reliably name the colors red, yellow, blue, and green in English. In the original Experiment 2, participants were 24 graduate students, 14 of whom were female, ranging in age from 19 to 30 years. They had all begun learning English at age 9 or 10, and their average TOEFL score was reported as 81.6%.  
+
+The planned sample size for the replication was 35 participants in order to achieve approximately 90% power to detect the originally reported effect. This represents an increase from the original sample size of 24 participants and was intended to improve statistical reliability. If recruitment constraints arose, a minimum sample size of 27 participants (approximately 80% power) was considered acceptable. Data collection would stop when the target number of usable participants had been reached, or when the end of the academic term made further recruitment impractical. Participants who did not complete all blocks, failed to follow task instructions, or produced unusable vocal-response data on a substantial number of trials would be excluded according to the analysis rules described below.
+
 
 ### Materials
 
-All materials - can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
+The replication followed the original Experiment 2 materials as closely as possible. The original study used Chinese characters displayed in four ink colors: red, yellow, green, and blue. The six critical conditions were congruent color characters, congruent homophone characters (S+T+), congruent segment-overlap characters (S+T−), congruent tone-overlap characters (S−T+), neutral characters, and incongruent color characters. The original article stated that “the character conditions and the stimuli were exactly the same as those in Experiment 1.” 
+
+The article reported that Experiment 2 included “a total of 48 critical trials (six conditions × four colors × two repetition) and 48 fillers.” It further stated that “the 48 trials were pseudo-randomly divided into two blocks, with 24 critical trials and 24 fillers in each, and with a character-naming block prior to each color-naming block.” In addition, “the character-naming block consisted of 48 trials. The characters were printed in black ink. They were the same as those in the subsequent color-naming block, but presented in a different order.” 
+
+The original set of critical characters included examples such as 红 /hong2/ (“red”), 洪 /hong2/ (“flood”), 轰 /hong1/ (“boom”), 瓶 /ping2/ (“bottle”), and 牵 /qian1/ (“lead along”), along with corresponding items for yellow, blue, and green. The replication aimed to use the same characters and color mappings. If exact original stimulus files were unavailable, the materials would be recreated from the characters listed in the article and matched as closely as possible in format and presentation.
+
+### Procedure
 
 ### Procedure	
 
-Can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article.
+The replication followed the original Experiment 2 procedure as closely as possible. The original study reported that “all participants completed four blocks (character naming 1, color naming 1, character naming 2, and color naming 2). Participants were randomly assigned to either order 1: character naming 1 → color naming 1 → character naming 2 → color naming 2 or order 2: character naming 2 → color naming 2 → character naming 1 → color naming 1.”  
+
+The trial structure was described as follows: “after the instructions were given, a 500 ms fixation (‘+’) appeared at the center of the screen, followed by the target character that disappeared as soon as a color-naming response was made. The inter-trial interval was 1000 ms. If no response was made within 3000 ms, the current trial was automatically terminated.” The replication followed this timing structure as closely as possible.
+
+In the character-naming blocks, participants read each Chinese character aloud in Chinese as quickly and accurately as possible. In the color-naming blocks, participants named the ink color of the character in English as quickly and accurately as possible while ignoring the character itself. The original study included “eight practice character-naming trials followed by eight practice Stroop trials before the experiment.” The replication followed this practice structure as closely as possible.
+
 
 ### Analysis Plan
 
-Can also quote directly, though it is less often spelled out effectively for an analysis strategy section.  The key is to report an analysis strategy that is as close to the original - data cleaning rules, data exclusion rules, covariates, etc. - as possible.  
+The primary confirmatory analysis will test whether the congruent homophone condition (S+T+) produces slower English color naming than the neutral condition, replicating the key Experiment 2 finding. In the original article, “planned paired sample t-tests” were used to compare each condition against the neutral condition. The main analysis of interest in the present replication will therefore be a paired-samples t-test comparing participant mean reaction times in the congruent homophone condition and the neutral condition.
 
-**Clarify key analysis of interest here**  You can also pre-specify additional analyses you plan to do.
+The replication will follow the original data-cleaning procedure as closely as possible. The original article stated that “RT analyses were based on correct trials only,” that trials were removed when “the naming responses failed to trigger the voice key,” and that “data that were two standard deviations above or below the cell mean were also excluded from data analysis.” The article also stated that “all analyses were based on log-transformed data.” Accordingly, the replication will:
+
+1. analyze reaction times from correct trials only;  
+2. remove trials with failed vocal-response detection;  
+3. exclude trials with RTs more than 2 SD above or below the relevant cell mean; and  
+4. conduct the primary analysis on log-transformed RTs.  
+
+Secondary confirmatory analyses will compare the other critical conditions against neutral, as in the original study:
+- congruent color character vs. neutral  
+- incongruent color character vs. neutral  
+- S+T− vs. neutral  
+- S−T+ vs. neutral  
+
+A successful replication will be defined primarily by observing an interference effect in the same direction as the original Experiment 2 result, such that homophone trials are slower than neutral trials. Additional exploratory analyses may examine raw RTs, accuracy patterns, first-presentation-only analyses, and possible correlations between language background variables and Stroop effects.
+
 
 ### Differences from Original Study
 
-Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.  The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
+The goal of my study was to replicate Experiment 2 as closely as possible, but some differences may still occur. First, the original experiment was implemented in DMDX software, whereas the present replication may use a different software platform. Second, the participant pool may differ from the original in institution, location, and exact English proficiency levels. Third, exact original stimulus files, fonts, or randomization scripts may not be available, in which case the materials will be reconstructed from the information given in the article. These differences are not ideal, but they are not clearly identified by the original authors as crucial moderators of the effect, as long as the central manipulation is preserved: participants must complete Chinese character naming immediately before English color naming using the same character set.  
+
+A further difference is that the present replication plans a somewhat larger sample size than the original study. This change is intended to improve statistical power and precision, not to alter the theoretical question. Any deviations from the original materials, procedure, or analysis plan will be reported transparently in the final report.
 
 ### Methods Addendum (Post Data Collection)
 
