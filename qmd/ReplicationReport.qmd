@@ -1,6 +1,6 @@
 ---
-title: "Replication of Study X by Sample & Sample (20xx, Psychological Science)"
-author: "Replication Author[s] (contact information)"
+title: "Replication of cross-language activation in Mandarin-English bilinguals by Li, Wang, & Lin (2017, International Journal of Bilingualism)"
+author: "Aja Zou (ajazou@stanford.edu)"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 format:
   html:
