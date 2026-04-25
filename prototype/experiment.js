@@ -1,6 +1,5 @@
-// Experiment 3: Controlling for plugs
-// Self-paced reading task
-// Breheny, Katsos & Williams (2006)
+// Experiment 2 Replication: Recent Chinese reading experience and English color naming
+// Based on Li, Wang, & Lin (2017), Experiment 2
 
 const jsPsych = initJsPsych({
   on_finish: function () {
@@ -8,199 +7,28 @@ const jsPsych = initJsPsych({
   }
 });
 
-// --- Latin square assignment ---
-// Randomly assign participant to one of 3 lists
-const listNumber = Math.floor(Math.random() * 3);
-
-// Assign conditions to items using Latin square
-const conditionNames = [
-  "upper_bound_some",
-  "upper_bound_only_some",
-  "lower_bound_some"
-];
-
-function getConditionForItem(itemIndex, list) {
-  return conditionNames[(itemIndex + list) % 3];
-}
-
-// --- Build self-paced reading trials for a single text ---
-function buildReadingTrials(item, conditionData, itemId, condition, isCritical) {
-  const trials = [];
-  const segments = conditionData.segments || conditionData;
-  const triggerIdx = conditionData.trigger_index;
-  const targetIdx = conditionData.target_index;
-  const postTargetIdx = conditionData.post_target_index;
-
-  for (let i = 0; i < segments.length; i++) {
-    const seg = segments[i];
-
-    // Sentence boundary: insert 1000ms blank
-    if (seg === "||") {
-      trials.push({
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: "",
-        choices: "NO_KEYS",
-        trial_duration: 1000,
-        data: {
-          task: "sentence_break",
-          item_id: itemId
-        }
-      });
-      continue;
-    }
-
-    // Determine segment role
-    let segmentRole = "other";
-    if (isCritical && i === triggerIdx) segmentRole = "trigger";
-    else if (isCritical && i === targetIdx) segmentRole = "target";
-    else if (isCritical && i === postTargetIdx) segmentRole = "post_target";
-
-    trials.push({
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: `<p class="segment-display">${seg}</p>`,
-      choices: [" "],
-      response_ends_trial: true,
-      data: {
-        task: "reading",
-        item_id: itemId,
-        condition: condition || "filler",
-        segment_text: seg,
-        segment_index: i,
-        segment_role: segmentRole,
-        is_critical: isCritical,
-        list: listNumber
-      }
-    });
-  }
-
-  return trials;
-}
-
-// --- Build comprehension question trial ---
-function buildQuestionTrial(question, itemId) {
-  if (!question) return [];
-  return [
-    {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: `
-        <div class="comprehension-question">
-          <p>${question.text}</p>
-          <p style="font-size: 16px; color: #666;"><strong>F</strong> = Yes &nbsp;&nbsp;&nbsp; <strong>J</strong> = No</p>
-        </div>
-      `,
-      choices: ["f", "j"],
-      data: {
-        task: "comprehension",
-        item_id: itemId,
-        correct_answer: question.correct,
-        question_text: question.text
-      },
-      on_finish: function (data) {
-        const response = data.response;
-        const isYes = response === "f";
-        data.participant_answer = isYes ? "yes" : "no";
-        data.correct = data.participant_answer === data.correct_answer;
-      }
-    }
-  ];
-}
-
-// --- Instructions ---
-const welcomeScreen = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: `
-    <div class="instructions">
-      <h2>Welcome</h2>
-      <p>Thank you for participating in this experiment.</p>
-      <p>In this task, you will read short texts presented segment by segment on the screen.</p>
-      <p>Press <strong>Space</strong> to continue.</p>
-    </div>
-  `,
-  choices: [" "]
+const COLORS = {
+  red: "#d62728",
+  yellow: "#d6b300",
+  blue: "#1f77b4",
+  green: "#2ca02c",
+  black: "#000000"
 };
 
-const instructionsScreen = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: `
-    <div class="instructions">
-      <h2>Instructions</h2>
-      <p>You will read short texts presented <strong>one segment at a time</strong>.</p>
-      <p>After reading each segment carefully, press the <strong>Space bar</strong> to see the next one.</p>
-      <ul>
-        <li>Read each segment only once and do not try to memorise it.</li>
-        <li>Make sure you fully understand each segment before advancing.</li>
-        <li>Some texts will be followed by a <strong>Yes/No comprehension question</strong>.</li>
-        <li>For questions: press <strong>F</strong> for Yes, <strong>J</strong> for No.</li>
-        <li>Please answer as accurately as possible.</li>
-      </ul>
-      <p>We will begin with a few practice items.</p>
-      <p>Press <strong>Space</strong> to start the practice.</p>
-    </div>
-  `,
-  choices: [" "]
+const RESPONSE_KEYS = {
+  red: "r",
+  yellow: "y",
+  blue: "b",
+  green: "g"
 };
 
-// --- Build practice block ---
-const practiceTimeline = [];
-for (const item of practiceItems) {
-  const trials = buildReadingTrials(
-    item,
-    { segments: item.segments },
-    item.id,
-    "practice",
-    false
-  );
-  practiceTimeline.push(...trials);
-  if (item.question) {
-    practiceTimeline.push(...buildQuestionTrial(item.question, item.id));
-  }
-}
-
-const endPractice = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: `
-    <div class="instructions">
-      <h2>End of Practice</h2>
-      <p>The practice is over. The experiment will now begin.</p>
-      <p>Remember: press <strong>Space</strong> to advance segments, <strong>F</strong> for Yes, <strong>J</strong> for No on questions.</p>
-      <p>Press <strong>Space</strong> to start the experiment.</p>
-    </div>
-  `,
-  choices: [" "]
+const KEY_TO_COLOR = {
+  r: "red",
+  y: "yellow",
+  b: "blue",
+  g: "green"
 };
 
-// --- Build experimental block ---
-// Assign conditions to critical items
-const experimentalTrials = [];
-
-for (let i = 0; i < criticalItems.length; i++) {
-  const item = criticalItems[i];
-  const condition = getConditionForItem(i, listNumber);
-  const conditionData = item.conditions[condition];
-
-  experimentalTrials.push({
-    itemId: item.id,
-    condition: condition,
-    isCritical: true,
-    conditionData: conditionData,
-    question: item.question,
-    segments: conditionData.segments
-  });
-}
-
-// Add filler items
-for (const item of fillerItems) {
-  experimentalTrials.push({
-    itemId: item.id,
-    condition: "filler",
-    isCritical: false,
-    conditionData: { segments: item.segments },
-    question: item.question,
-    segments: item.segments
-  });
-}
-
-// Shuffle the experimental trials
 function shuffle(array) {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -210,76 +38,333 @@ function shuffle(array) {
   return arr;
 }
 
-const shuffledTrials = shuffle(experimentalTrials);
-
-// Split into two halves for rest break
-const halfPoint = Math.ceil(shuffledTrials.length / 2);
-const firstHalf = shuffledTrials.slice(0, halfPoint);
-const secondHalf = shuffledTrials.slice(halfPoint);
-
-function buildTrialBlock(trialList) {
-  const timeline = [];
-  for (const trial of trialList) {
-    const readingTrials = buildReadingTrials(
-      trial,
-      trial.conditionData,
-      trial.itemId,
-      trial.condition,
-      trial.isCritical
-    );
-    timeline.push(...readingTrials);
-    if (trial.question) {
-      timeline.push(...buildQuestionTrial(trial.question, trial.itemId));
+function hasTooManyConsecutiveSame(trials, field, maxRun = 3) {
+  let run = 1;
+  for (let i = 1; i < trials.length; i++) {
+    if (trials[i][field] === trials[i - 1][field]) {
+      run++;
+      if (run > maxRun) return true;
+    } else {
+      run = 1;
     }
   }
-  return timeline;
+  return false;
 }
 
-const firstBlock = buildTrialBlock(firstHalf);
+function pseudoShuffleTrials(trials, maxAttempts = 1000) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const candidate = shuffle(trials);
+    const badColorRun = hasTooManyConsecutiveSame(candidate, "ink_color", 3);
+    const badCharacterRun = hasTooManyConsecutiveSame(candidate, "character", 3);
+    if (!badColorRun && !badCharacterRun) return candidate;
+  }
+  return shuffle(trials);
+}
 
-const restBreak = {
+function fixationTrial() {
+  return {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `<div class="fixation">+</div>`,
+    choices: "NO_KEYS",
+    trial_duration: 500,
+    data: { task: "fixation" }
+  };
+}
+
+const welcomeScreen = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: `
     <div class="instructions">
-      <h2>Rest Break</h2>
-      <p>You are halfway through the experiment. Please take a short break.</p>
-      <p>When you are ready to continue, press <strong>Space</strong>.</p>
+      <h2>Welcome</h2>
+      <p>Thank you for participating in this experiment.</p>
+      <p>This study has two kinds of tasks:</p>
+      <ol>
+        <li>Read Chinese characters aloud in Mandarin.</li>
+        <li>Name the ink color of Chinese characters in English.</li>
+      </ol>
+      <p>Press <strong>Space</strong> to continue.</p>
     </div>
   `,
   choices: [" "]
 };
 
-const secondBlock = buildTrialBlock(secondHalf);
+const colorKeyInstructions = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: `
+    <div class="instructions">
+      <h2>Color Response Keys</h2>
+      <p>In the color-naming task, respond to the <strong>ink color</strong>, not the meaning of the character.</p>
+      <ul>
+        <li><strong>R</strong> = red</li>
+        <li><strong>Y</strong> = yellow</li>
+        <li><strong>B</strong> = blue</li>
+        <li><strong>G</strong> = green</li>
+      </ul>
+      <p>Respond as quickly and accurately as possible.</p>
+      <p>Press <strong>Space</strong> to continue.</p>
+    </div>
+  `,
+  choices: [" "]
+};
 
-// --- Debrief ---
+function characterNamingInstructions(blockNumber) {
+  return {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="instructions">
+        <h2>Chinese Character Naming Block ${blockNumber}</h2>
+        <p>You will see Chinese characters printed in black.</p>
+        <p>Please read each character aloud in Mandarin as quickly and accurately as possible.</p>
+        <p>After saying the character, press <strong>Space</strong> to continue.</p>
+        <p>Press <strong>Space</strong> to begin.</p>
+      </div>
+    `,
+    choices: [" "]
+  };
+}
+
+function colorNamingInstructions(blockNumber) {
+  return {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="instructions">
+        <h2>English Color-Naming Block ${blockNumber}</h2>
+        <p>You will see Chinese characters printed in color.</p>
+        <p>Your task is to identify the <strong>ink color in English</strong>.</p>
+        <p>Ignore the character itself.</p>
+        <p><strong>R</strong> = red, <strong>Y</strong> = yellow, <strong>B</strong> = blue, <strong>G</strong> = green.</p>
+        <p>Press <strong>Space</strong> to begin.</p>
+      </div>
+    `,
+    choices: [" "]
+  };
+}
+
+function buildPracticeCharacterTrial(item) {
+  return [
+    fixationTrial(),
+    {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<div class="chinese-character" style="color:${COLORS.black};">${item.character}</div>`,
+      choices: [" "],
+      response_ends_trial: true,
+      trial_duration: 3000,
+      data: {
+        task: "practice_character_naming",
+        character: item.character,
+        pinyin: item.pinyin
+      }
+    }
+  ];
+}
+
+function buildPracticeColorTrial(item) {
+  return [
+    fixationTrial(),
+    {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<div class="chinese-character" style="color:${COLORS[item.ink_color]};">${item.character}</div>`,
+      choices: ["r", "y", "b", "g"],
+      response_ends_trial: true,
+      trial_duration: 3000,
+      data: {
+        task: "practice_color_naming",
+        character: item.character,
+        ink_color: item.ink_color,
+        correct_key: RESPONSE_KEYS[item.ink_color]
+      },
+      on_finish: function (data) {
+        data.response_color = KEY_TO_COLOR[data.response] || null;
+        data.correct = data.response === data.correct_key;
+      }
+    }
+  ];
+}
+
+const practiceTimeline = [
+  {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="instructions">
+        <h2>Practice</h2>
+        <p>First, you will practice reading Chinese characters aloud.</p>
+        <p>Press <strong>Space</strong> to start.</p>
+      </div>
+    `,
+    choices: [" "]
+  },
+  ...practiceCharacterItems.flatMap(buildPracticeCharacterTrial),
+  {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="instructions">
+        <h2>Color Practice</h2>
+        <p>Now practice naming the ink color in English using the keyboard.</p>
+        <p><strong>R</strong> = red, <strong>Y</strong> = yellow, <strong>B</strong> = blue, <strong>G</strong> = green.</p>
+        <p>Press <strong>Space</strong> to start.</p>
+      </div>
+    `,
+    choices: [" "]
+  },
+  ...practiceColorItems.flatMap(buildPracticeColorTrial),
+  {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="instructions">
+        <h2>End of Practice</h2>
+        <p>The practice is over. The experiment will now begin.</p>
+        <p>Press <strong>Space</strong> to continue.</p>
+      </div>
+    `,
+    choices: [" "]
+  }
+];
+
+function buildCharacterNamingTrial(trial, blockNumber) {
+  return [
+    fixationTrial(),
+    {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<div class="chinese-character" style="color:${COLORS.black};">${trial.character}</div>`,
+      choices: [" "],
+      response_ends_trial: true,
+      trial_duration: 3000,
+      data: {
+        task: "character_naming",
+        block: blockNumber,
+        item_id: trial.item_id,
+        character: trial.character,
+        pinyin: trial.pinyin,
+        translation: trial.translation,
+        source_condition: trial.condition,
+        source_ink_color: trial.ink_color,
+        is_filler: trial.is_filler
+      }
+    }
+  ];
+}
+
+function buildColorNamingTrial(trial, blockNumber) {
+  return [
+    fixationTrial(),
+    {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<div class="chinese-character" style="color:${COLORS[trial.ink_color]};">${trial.character}</div>`,
+      choices: ["r", "y", "b", "g"],
+      response_ends_trial: true,
+      trial_duration: 3000,
+      data: {
+        task: "color_naming",
+        block: blockNumber,
+        item_id: trial.item_id,
+        condition: trial.condition,
+        character: trial.character,
+        pinyin: trial.pinyin,
+        translation: trial.translation,
+        ink_color: trial.ink_color,
+        correct_key: RESPONSE_KEYS[trial.ink_color],
+        is_critical: trial.is_critical,
+        is_filler: trial.is_filler,
+        repetition: trial.repetition
+      },
+      on_finish: function (data) {
+        data.response_color = KEY_TO_COLOR[data.response] || null;
+        data.correct = data.response === data.correct_key;
+      }
+    }
+  ];
+}
+
+function makeCriticalColorTrials(repetitionNumber) {
+  const trials = [];
+  for (const item of criticalStimuli) {
+    for (const condition of Object.keys(item.conditions)) {
+      const c = item.conditions[condition];
+      trials.push({
+        item_id: item.color_name,
+        condition: condition,
+        character: c.character,
+        pinyin: c.pinyin,
+        translation: c.translation,
+        ink_color: c.ink_color,
+        is_critical: true,
+        is_filler: false,
+        repetition: repetitionNumber
+      });
+    }
+  }
+  return trials;
+}
+
+function makeFillerTrials(blockNumber) {
+  return fillerStimuli[blockNumber - 1].map((trial, index) => ({
+    item_id: `f${blockNumber}_${index + 1}`,
+    condition: "filler",
+    character: trial.character,
+    pinyin: trial.pinyin,
+    translation: trial.translation,
+    ink_color: trial.ink_color,
+    is_critical: false,
+    is_filler: true,
+    repetition: null
+  }));
+}
+
+function buildExperimentalPair(blockNumber) {
+  const colorTrials = pseudoShuffleTrials([
+    ...makeCriticalColorTrials(blockNumber),
+    ...makeFillerTrials(blockNumber)
+  ]);
+
+  const characterTrials = pseudoShuffleTrials(colorTrials);
+
+  return [
+    characterNamingInstructions(blockNumber),
+    ...characterTrials.flatMap(trial => buildCharacterNamingTrial(trial, blockNumber)),
+    colorNamingInstructions(blockNumber),
+    ...colorTrials.flatMap(trial => buildColorNamingTrial(trial, blockNumber))
+  ];
+}
+
+const restBreak = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: `
+    <div class="instructions">
+      <h2>Short Break</h2>
+      <p>You have completed the first half of the experiment.</p>
+      <p>Press <strong>Space</strong> when you are ready to continue.</p>
+    </div>
+  `,
+  choices: [" "]
+};
+
 const debrief = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: function () {
-    const comprehensionTrials = jsPsych.data.get().filter({ task: "comprehension" });
-    const total = comprehensionTrials.count();
-    const correct = comprehensionTrials.filter({ correct: true }).count();
+    const colorTrials = jsPsych.data.get().filter({ task: "color_naming" });
+    const total = colorTrials.count();
+    const correct = colorTrials.filter({ correct: true }).count();
     const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
     return `
       <div class="instructions">
         <h2>Experiment Complete</h2>
-        <p>Thank you for your participation!</p>
-        <p>You answered <strong>${correct}</strong> out of <strong>${total}</strong> comprehension questions correctly (${pct}%).</p>
-        <p>Press <strong>Space</strong> to see your data.</p>
+        <p>Thank you for participating!</p>
+        <p>Your keyboard color-naming accuracy was <strong>${correct}</strong> out of <strong>${total}</strong> trials (${pct}%).</p>
+        <p>Press <strong>Space</strong> to view the data.</p>
       </div>
     `;
   },
   choices: [" "]
 };
 
-// --- Run experiment ---
 const timeline = [
   welcomeScreen,
-  instructionsScreen,
+  colorKeyInstructions,
   ...practiceTimeline,
-  endPractice,
-  ...firstBlock,
+  ...buildExperimentalPair(1),
   restBreak,
-  ...secondBlock,
+  ...buildExperimentalPair(2),
   debrief
 ];
 
