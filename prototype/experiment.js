@@ -358,17 +358,6 @@ const debrief = {
   choices: [" "]
 };
 
-const subject_id = jsPsych.randomization.randomID(10);
-const filename = `${subject_id}.csv`;
-
-const save_data = {
-  type: jsPsychPipe,
-  action: "save",
-  experiment_id: "xNVH4nmbu4Uv",
-  filename: filename,
-  data_string: ()=>jsPsych.data.get().csv()
-};
-
 const timeline = [
   welcomeScreen,
   colorKeyInstructions,
