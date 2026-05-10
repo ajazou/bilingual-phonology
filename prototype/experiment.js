@@ -92,6 +92,44 @@ const welcomeScreen = {
   choices: [" "]
 };
 
+const consentScreen = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `
+    <div class="instructions">
+      <h2>Consent to Participate</h2>
+      <p>
+        You are being asked to participate in a research study about bilingual language processing.
+      </p>
+      <p>
+        In this experiment, you will read Chinese characters aloud and identify the ink color
+        of Chinese characters in English. The study should involve minimal risk.
+      </p>
+      <p>
+        Your responses, reaction times, and background language information will be recorded
+        for research purposes. Your data will be stored using an anonymous participant ID.
+      </p>
+      <p>
+        Participation is voluntary. You may stop participating at any time.
+      </p>
+      <p>
+        By clicking <strong>I agree</strong>, you confirm that you understand the study
+        and agree to participate.
+      </p>
+    </div>
+  `,
+  choices: ["I agree", "I do not agree"],
+  data: {
+    task: "consent",
+    subject_id: subject_id
+  },
+  on_finish: function(data) {
+    data.consent_response = data.response === 0 ? "agree" : "do_not_agree";
+    if (data.response === 1) {
+      jsPsych.endExperiment("You chose not to participate. The experiment has ended.");
+    }
+  }
+};
+
 const participantInfo = {
   type: jsPsychSurveyHtmlForm,
   preamble: `
@@ -469,6 +507,7 @@ const save_data = {
 
 const timeline = [
   welcomeScreen,
+  consentScreen,
   participantInfo,
   colorKeyInstructions,
   ...practiceTimeline,
