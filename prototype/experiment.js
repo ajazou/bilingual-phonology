@@ -376,7 +376,8 @@ const timeline = [
   ...buildExperimentalPair(1),
   restBreak,
   ...buildExperimentalPair(2),
-  debrief
+  debrief,
+  save_data
 ];
 
 jsPsych.run(timeline);
