@@ -4,7 +4,6 @@
 const jsPsych = initJsPsych({
   show_progress_bar: true,
   auto_update_progress_bar: true,
-  message_progress_bar: "Progress",
   on_finish: function () {
     jsPsych.data.displayData("csv");
   }
