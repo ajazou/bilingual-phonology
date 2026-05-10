@@ -2,6 +2,8 @@
 // Based on Li, Wang, & Lin (2017), Experiment 2
 
 const jsPsych = initJsPsych({
+  show_progress_bar: true,
+  auto_update_progress_bar: true,
   on_finish: function () {
     jsPsych.data.displayData("csv");
   }
@@ -86,6 +88,101 @@ const welcomeScreen = {
     </div>
   `,
   choices: [" "]
+};
+
+const participantInfo = {
+  type: jsPsychSurveyHtmlForm,
+  preamble: `
+    <div class="participant-form">
+      <h2>Participant Information</h2>
+      <p>
+        This study is designed for Mandarin-English bilingual speakers.
+        Please answer the following questions before beginning the task.
+      </p>
+    </div>
+  `,
+  html: `
+    <div class="participant-form">
+
+      <label>
+        Are you a Mandarin-English bilingual speaker?
+        <select name="mandarin_english_bilingual" required>
+          <option value="">Select one</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+
+      <label>
+        What is your native language / first language?
+        <input name="native_language" type="text" required>
+      </label>
+
+      <label>
+        Age when you began learning English:
+        <input name="english_age_of_acquisition" type="number" min="0" max="100" required>
+      </label>
+
+      <label>
+        How many years have you lived in the United States?
+        <input name="years_in_us" type="number" min="0" max="100" step="0.1" required>
+      </label>
+
+      <label>
+        English proficiency score, if available, such as TOEFL percentage or score:
+        <input name="english_proficiency_score" type="text">
+      </label>
+
+      <label>
+        Self-rated Mandarin proficiency:
+        <select name="mandarin_proficiency" required>
+          <option value="">Select one</option>
+          <option value="native">Native</option>
+          <option value="advanced">Advanced</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="beginner">Beginner</option>
+        </select>
+      </label>
+
+      <label>
+        Self-rated English proficiency:
+        <select name="english_proficiency" required>
+          <option value="">Select one</option>
+          <option value="advanced">Advanced</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="beginner">Beginner</option>
+        </select>
+      </label>
+
+      <label>
+        Do you have normal or corrected-to-normal vision?
+        <select name="normal_or_corrected_vision" required>
+          <option value="">Select one</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+
+    </div>
+  `,
+  button_label: "Continue",
+  data: {
+    task: "participant_information",
+    subject_id: subject_id
+  },
+  on_finish: function (data) {
+    const responses = data.response;
+
+    data.subject_id = subject_id;
+    data.mandarin_english_bilingual = responses.mandarin_english_bilingual;
+    data.native_language = responses.native_language;
+    data.english_age_of_acquisition = responses.english_age_of_acquisition;
+    data.years_in_us = responses.years_in_us;
+    data.english_proficiency_score = responses.english_proficiency_score;
+    data.mandarin_proficiency = responses.mandarin_proficiency;
+    data.english_proficiency = responses.english_proficiency;
+    data.normal_or_corrected_vision = responses.normal_or_corrected_vision;
+  }
 };
 
 const colorKeyInstructions = {
@@ -371,6 +468,7 @@ const save_data = {
 
 const timeline = [
   welcomeScreen,
+  participantInfo,
   colorKeyInstructions,
   ...practiceTimeline,
   ...buildExperimentalPair(1),
