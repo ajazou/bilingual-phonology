@@ -2,13 +2,17 @@
 <html>
   <head>
     <title>Experiment 2 Replication - Bilingual Stroop Task</title>
+
     <script src="https://unpkg.com/jspsych@8.2.3"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@2.1.0"></script>
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+
     <link href="https://unpkg.com/jspsych@8.2.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+
     <style>
-     .jspsych-display-element {
+      .jspsych-display-element {
         font-size: 22px;
       }
 
@@ -25,7 +29,8 @@
         text-align: center;
       }
 
-      .instructions {
+      .instructions,
+      .participant-form {
         max-width: 750px;
         margin: 0 auto;
         text-align: left;
@@ -33,12 +38,28 @@
         font-family: Arial, sans-serif;
       }
 
-      .instructions h2 {
+      .instructions h2,
+      .participant-form h2 {
         text-align: center;
+      }
+
+      .participant-form label {
+        display: block;
+        margin-top: 14px;
+      }
+
+      .participant-form input,
+      .participant-form select {
+        width: 100%;
+        padding: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
       }
     </style>
   </head>
+
   <body></body>
+
   <script src="stimuli.js"></script>
   <script src="experiment.js"></script>
 </html>
