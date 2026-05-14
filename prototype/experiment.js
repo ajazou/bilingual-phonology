@@ -238,7 +238,7 @@ const participantInfo = {
         </p>
       </div>
     `);
-	  
+	 } 
   }
 };
 
