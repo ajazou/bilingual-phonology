@@ -201,6 +201,7 @@ const participantInfo = {
     task: "participant_information",
     subject_id: subject_id
   },
+	
   on_finish: function (data) {
     const responses = data.response;
 
@@ -213,6 +214,31 @@ const participantInfo = {
     data.mandarin_proficiency = responses.mandarin_proficiency;
     data.english_proficiency = responses.english_proficiency;
     data.normal_or_corrected_vision = responses.normal_or_corrected_vision;
+
+	const nativeLang = responses.native_language.toLowerCase().trim();
+
+ 	const isChineseL1 =
+    nativeLang.includes("mandarin") ||
+    nativeLang.includes("chinese");
+
+  if (
+    responses.mandarin_english_bilingual !== "yes" ||
+    !isChineseL1 ||
+    responses.english_proficiency === "beginner" ||
+    responses.normal_or_corrected_vision !== "yes"
+  ) {
+
+    jsPsych.endExperiment(`
+      <div class="instructions">
+        <h2>Thank you</h2>
+        <p>
+        Based on your responses, you are not eligible for this study.
+        This experiment is designed for Mandarin Chinese L1 and English L2 bilingual speakers
+        with normal or corrected-to-normal vision.
+        </p>
+      </div>
+    `);
+	  
   }
 };
 
