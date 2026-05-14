@@ -493,8 +493,15 @@ const save_data = {
     action: "save",
     experiment_id: "xNVH4nmbu4Uv",
     filename: filename,
-    data_string: ()=>jsPsych.data.get().csv()
-              };
+    data_string: ()=>jsPsych.data.get().csv(),
+	on_finish: function() {
+
+    // Prolific completion redirect
+    window.location.href =
+      "https://app.prolific.com/submissions/complete?cc=YOURCODE";
+
+  }
+};
 
 const timeline = [
   consent_trial,
