@@ -116,44 +116,6 @@ const consent_trial = {
   }
 };
 
-const decline_consent_page = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: `
-    <div class="instructions">
-      <h2>Thank you</h2>
-      <p>You have chosen not to participate. Thank you for your time.</p>
-      <p>You may now close this page.</p>
-    </div>
-  `,
-  choices: "NO_KEYS"
-};
-
-const decline_consent_timeline = {
-  timeline: [decline_consent_page],
-  conditional_function: function() {
-    const consentData = jsPsych.data.get().filter({ trial_type: "consent" }).last(1).values()[0];
-    return consentData && consentData.consent_response === "disagree";
-  }
-};
-
-const continue_if_consented_timeline = {
-  timeline: [
-    welcomeScreen,
-    participantInfo,
-    colorKeyInstructions,
-    ...practiceTimeline,
-    ...firstExperimentalPair,
-    restBreak,
-    ...secondExperimentalPair,
-    debrief,
-    save_data
-  ],
-  conditional_function: function() {
-    const consentData = jsPsych.data.get().filter({ trial_type: "consent" }).last(1).values()[0];
-    return consentData && consentData.consent_response === "agree";
-  }
-};
-
 const welcomeScreen = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: `
@@ -595,6 +557,44 @@ const firstExperimentalPair =
 
 const secondExperimentalPair =
   order === 1 ? buildExperimentalPair(2) : buildExperimentalPair(1);
+
+const decline_consent_page = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: `
+    <div class="instructions">
+      <h2>Thank you</h2>
+      <p>You have chosen not to participate. Thank you for your time.</p>
+      <p>You may now close this page.</p>
+    </div>
+  `,
+  choices: "NO_KEYS"
+};
+
+const decline_consent_timeline = {
+  timeline: [decline_consent_page],
+  conditional_function: function() {
+    const consentData = jsPsych.data.get().filter({ trial_type: "consent" }).last(1).values()[0];
+    return consentData && consentData.consent_response === "disagree";
+  }
+};
+
+const continue_if_consented_timeline = {
+  timeline: [
+    welcomeScreen,
+    participantInfo,
+    colorKeyInstructions,
+    ...practiceTimeline,
+    ...firstExperimentalPair,
+    restBreak,
+    ...secondExperimentalPair,
+    debrief,
+    save_data
+  ],
+  conditional_function: function() {
+    const consentData = jsPsych.data.get().filter({ trial_type: "consent" }).last(1).values()[0];
+    return consentData && consentData.consent_response === "agree";
+  }
+};
 
 const timeline = [
   consent_trial,
