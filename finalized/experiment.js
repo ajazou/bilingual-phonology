@@ -75,6 +75,16 @@ function fixationTrial() {
   };
 }
 
+function interTrialInterval() {
+  return {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "",
+    choices: "NO_KEYS",
+    trial_duration: 1000,
+    data: { task: "inter_trial_interval" }
+  };
+}
+
 const consent_trial = {
 	  type: jsPsychHtmlButtonResponse,
 	  stimulus: `<div class="consent-text"> <h2>Consent Agreement</h2> <p> Please read this consent agreement carefully before deciding whether to participate in this experiment. </p> <p> <strong>Description:</strong> You are invited to participate in a research study about language and language learning. The purpose of the research is to understand how people learn new words. This research will be conducted through the Prolific platform, including participants from the US, UK, and Canada. If you decide to participate in this research, you will learn and use new words. </p> <p> <strong>Time Involvement:</strong> The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time. </p> <p> <strong>Risks and Benefits:</strong> Study data will be stored securely, in compliance with Stanford University standards, minimizing the risk of confiden-tiality breach. This study advances our scientific understanding of how people learn new languages. We cannot and do not guarantee or promise that you will receive any benefits from this study. </p> <p> <strong>Compensation:</strong> You will receive payment in the amount advertised on Prolific. If you do not complete this study, you will receive prorated payment based on the time that you have spent. Additionally, you may be eligible for bonus payments as described in the instructions. </p> <p> <strong>Participant's Rights:</strong> If you have read this form and have decided to participate in this project, please understand your participation is voluntary and you have the right to withdraw your consent or discontinue participation at any time without penalty or loss of benefits to which you are otherwise entitled. The alternative is not to participate. You have the right to refuse to answer particular questions. The results of this research study may be presented at scientific or professional meetings or published in scientific journals. Your individual privacy will be maintained in all published and writ-ten data resulting from the study. In accordance with scientific norms, the data from this study may be used or shared with other researchers for future research (after removing personally identifying information) without additional consent from you. </p> <p> <strong>Contact Information:</strong> If you have any questions, concerns or complaints about this research, its procedures, risks and benefits, contact the Protocol Director, Robert Hawkins (<a href="mailto:rdhawkins@stanford.edu">rdhawkins@stanford.edu</a>, 217-549-6923). </p> <p> <strong>Independant Contact:</strong> If you are not satisfied with how this study is being conducted, or if you have any concerns, com-plaints, or general questions about the research or your rights as a participant, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at 650-723-2480 or toll free at 1-866-680-2906, or email at irbnonmed@stanford.edu. You can also write to the Stanford IRB, Stanford University, 1705 El Camino Real, Palo Alto, CA 94306. Please save or print a copy of this page for your records. </p> <p> <strong>If you agree to participate in this research, please click "I agree"</strong> </p></br> </div>`,
@@ -215,28 +225,27 @@ const participantInfo = {
     data.english_proficiency = responses.english_proficiency;
     data.normal_or_corrected_vision = responses.normal_or_corrected_vision;
 
-	const nativeLang = responses.native_language.toLowerCase().trim();
+    const nativeLang = responses.native_language.toLowerCase().trim();
 
- 	const isChineseL1 =
-    nativeLang.includes("mandarin") ||
-    nativeLang.includes("chinese");
+    const isChineseL1 =
+      nativeLang.includes("mandarin") ||
+      nativeLang.includes("chinese");
 
-  if (
-    responses.mandarin_english_bilingual !== "yes" ||
-    !isChineseL1 ||
-    responses.english_proficiency === "beginner" ||
-    responses.normal_or_corrected_vision !== "yes"
-  ) {
-
-    jsPsych.endExperiment(`
-      <div class="instructions">
-        <h2>Thank you</h2>
-        <p>
-        Based on your responses, you are not eligible for this study.
-        This experiment is designed for Mandarin Chinese L1 and English L2 bilingual speakers
-        with normal or corrected-to-normal vision.
-        </p>
-      </div>
+    if (
+      responses.mandarin_english_bilingual !== "yes" ||
+      !isChineseL1 ||
+      responses.english_proficiency === "beginner" ||
+      responses.normal_or_corrected_vision !== "yes"
+    ) {
+      jsPsych.endExperiment(`
+        <div class="instructions">
+          <h2>Thank you</h2>
+          <p>
+            Based on your responses, you are not eligible for this study.
+            This experiment is designed for Mandarin Chinese L1 and English L2 bilingual speakers
+            with normal or corrected-to-normal vision.
+          </p>
+        </div>
     `);
 	 } 
   }
@@ -308,7 +317,8 @@ function buildPracticeCharacterTrial(item) {
         character: item.character,
         pinyin: item.pinyin
       }
-    }
+	},
+	  interTrialInterval()
   ];
 }
 
@@ -331,7 +341,8 @@ function buildPracticeColorTrial(item) {
         data.response_color = KEY_TO_COLOR[data.response] || null;
         data.correct = data.response === data.correct_key;
       }
-    }
+    },
+	  interTrialInterval()
   ];
 }
 
@@ -394,7 +405,8 @@ function buildCharacterNamingTrial(trial, blockNumber) {
         source_ink_color: trial.ink_color,
         is_filler: trial.is_filler
       }
-    }
+    },
+	  interTrialInterval()
   ];
 }
 
@@ -425,7 +437,8 @@ function buildColorNamingTrial(trial, blockNumber) {
         data.response_color = KEY_TO_COLOR[data.response] || null;
         data.correct = data.response === data.correct_key;
       }
-    }
+    },
+	  interTrialInterval()
   ];
 }
 
