@@ -3,9 +3,7 @@
 
 const jsPsych = initJsPsych({
   show_progress_bar: true,
-  auto_update_progress_bar: true,
-  on_finish: function () {
-    jsPsych.data.displayData("csv");
+  auto_update_progress_bar: true
   }
 });
 
@@ -102,10 +100,6 @@ const consent_trial = {
     </div>
   `,
   choices: ["I agree", "I do not agree"],
-  button_html: function(choice, choice_index) {
-    const buttonClass = choice_index === 0 ? "consent-button agree" : "consent-button disagree";
-    return `<button class="${buttonClass}">${choice}</button>`;
-  },
   data: {
     trial_type: "consent",
     subject_id: subject_id
