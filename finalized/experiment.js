@@ -4,7 +4,6 @@
 const jsPsych = initJsPsych({
   show_progress_bar: true,
   auto_update_progress_bar: true
-  }
 });
 
 const subject_id = jsPsych.randomization.randomID(10);
