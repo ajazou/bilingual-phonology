@@ -537,7 +537,7 @@ const save_data = {
 
     // Prolific completion redirect
     window.location.href =
-      "https://app.prolific.com/submissions/complete?cc=YOURCODE";
+      "https://app.prolific.com/submissions/complete?cc=CY0FN373";
 
   }
 };
