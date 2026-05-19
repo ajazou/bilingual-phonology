@@ -37,9 +37,52 @@ const KEY_TO_COLOR = {
 // Audio recording helpers
 // ---------------------------------------------------------------------------
 
-// All recorded blobs are stored here keyed by a trial identifier so they are
-// available for later analysis without requiring any upload infrastructure.
+// All recorded blobs are also cached here in case upload needs to be retried.
 window.audioRecordings = {};
+
+// ---------------------------------------------------------------------------
+// DataPipe audio upload
+// ---------------------------------------------------------------------------
+
+const DATAPIPE_EXPERIMENT_ID = "kAjReLJ5QXvA";  // same ID used for CSV
+
+/**
+ * Upload a single audio Blob to DataPipe as a binary file.
+ * Converts the blob to base64 and posts to the same /api/data endpoint that
+ * jsPsychPipe uses internally for CSV saving.
+ *
+ * @param {Blob}   blob      - the audio blob from MediaRecorder
+ * @param {string} filename  - e.g. "abc123_character_naming_red_block1_rep1.webm"
+ * @returns {Promise<{ok: boolean, status: number}>}
+ */
+async function saveAudioToDataPipe(blob, filename) {
+  try {
+    // Convert blob → ArrayBuffer → base64 string
+    const arrayBuffer = await blob.arrayBuffer();
+    const uint8 = new Uint8Array(arrayBuffer);
+    let binary = "";
+    for (let i = 0; i < uint8.length; i++) {
+      binary += String.fromCharCode(uint8[i]);
+    }
+    const base64 = btoa(binary);
+
+    const response = await fetch("https://pipe.jspsych.org/api/data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        experimentID: DATAPIPE_EXPERIMENT_ID,
+        filename: filename,
+        data: base64,
+        datatype: "base64"
+      })
+    });
+
+    return { ok: response.ok, status: response.status };
+  } catch (err) {
+    console.warn("DataPipe audio upload failed:", err);
+    return { ok: false, status: null };
+  }
+}
 
 let _mediaStream = null;          // reused across trials once granted
 let _activeRecorder = null;       // currently running MediaRecorder, if any
@@ -217,7 +260,7 @@ const micPermissionTrial = {
       <h2>Microphone Access</h2>
       <p>This experiment records your voice responses during the Chinese character-naming task.</p>
       <p>Your browser may ask for microphone permission — please click <strong>Allow</strong>.</p>
-      <p>The recordings are stored locally and are not sent to any server unless you are told otherwise.</p>
+      <p>Your voice recordings will be securely uploaded to our research server (DataPipe) for analysis.</p>
       <p>Press <strong>Space</strong> once you have granted permission (or if no prompt appeared).</p>
     </div>
   `,
@@ -509,8 +552,18 @@ function buildCharacterNamingTrial(trial, blockNumber) {
         window.audioRecordings[recordingKey] = blob;
         data.audio_recorded = true;
         data.audio_size_bytes = blob.size;
+
+        // Upload to DataPipe immediately after each trial so no audio is lost
+        // if a participant drops out before the end of the experiment.
+        const ext = blob.type.includes("ogg") ? "ogg" : "webm";
+        const audioFilename = `${subject_id}_${recordingKey}.${ext}`;
+        data.audio_filename = audioFilename;
+        const result = await saveAudioToDataPipe(blob, audioFilename);
+        data.audio_upload_ok = result.ok;
+        data.audio_upload_status = result.status;
       } else {
         data.audio_recorded = false;
+        data.audio_upload_ok = false;
       }
     }
   };
@@ -557,8 +610,17 @@ function buildPracticeCharacterTrial(item) {
         window.audioRecordings[recordingKey] = blob;
         data.audio_recorded = true;
         data.audio_size_bytes = blob.size;
+
+        // Upload to DataPipe; extension matches the actual mimeType
+        const ext = blob.type.includes("ogg") ? "ogg" : "webm";
+        const audioFilename = `${subject_id}_${recordingKey}.${ext}`;
+        data.audio_filename = audioFilename;
+        const result = await saveAudioToDataPipe(blob, audioFilename);
+        data.audio_upload_ok = result.ok;
+        data.audio_upload_status = result.status;
       } else {
         data.audio_recorded = false;
+        data.audio_upload_ok = false;
       }
     }
   };
