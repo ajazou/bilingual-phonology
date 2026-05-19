@@ -44,12 +44,11 @@ window.audioRecordings = {};
 // DataPipe audio upload
 // ---------------------------------------------------------------------------
 
-const DATAPIPE_EXPERIMENT_ID = "kAjReLJ5QXvA";  // same ID used for CSV
+const DATAPIPE_EXPERIMENT_ID = "5BLgRiMM9iI6";  // from DataPipe dashboard
 
 /**
- * Upload a single audio Blob to DataPipe as a binary file.
- * Converts the blob to base64 and posts to the same /api/data endpoint that
- * jsPsychPipe uses internally for CSV saving.
+ * Upload a single audio Blob to DataPipe using jsPsychPipe.saveBase64Data(),
+ * which is the method DataPipe officially recommends for binary files.
  *
  * @param {Blob}   blob      - the audio blob from MediaRecorder
  * @param {string} filename  - e.g. "abc123_character_naming_red_block1_rep1.webm"
@@ -57,27 +56,22 @@ const DATAPIPE_EXPERIMENT_ID = "kAjReLJ5QXvA";  // same ID used for CSV
  */
 async function saveAudioToDataPipe(blob, filename) {
   try {
-    // Convert blob → ArrayBuffer → base64 string
-    const arrayBuffer = await blob.arrayBuffer();
-    const uint8 = new Uint8Array(arrayBuffer);
-    let binary = "";
-    for (let i = 0; i < uint8.length; i++) {
-      binary += String.fromCharCode(uint8[i]);
-    }
-    const base64 = btoa(binary);
-
-    const response = await fetch("https://pipe.jspsych.org/api/data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        experimentID: DATAPIPE_EXPERIMENT_ID,
-        filename: filename,
-        data: base64,
-        datatype: "base64"
-      })
+    // Convert blob → base64 string via FileReader (broadest browser support)
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = () => reject(new Error("FileReader failed"));
+      reader.readAsDataURL(blob);
     });
 
-    return { ok: response.ok, status: response.status };
+    // jsPsychPipe.saveBase64Data is the DataPipe-recommended API for audio/binary files
+    const response = await jsPsychPipe.saveBase64Data(
+      DATAPIPE_EXPERIMENT_ID,
+      filename,
+      base64
+    );
+
+    return { ok: true, status: response };
   } catch (err) {
     console.warn("DataPipe audio upload failed:", err);
     return { ok: false, status: null };
@@ -846,7 +840,7 @@ const filename = `${subject_id}.csv`;
 const save_data = {
   type: jsPsychPipe,
   action: "save",
-  experiment_id: "kAjReLJ5QXvA",
+  experiment_id: "5BLgRiMM9iI6",
   filename: filename,
   data_string: () => jsPsych.data.get().csv(),
   on_finish: function () {
