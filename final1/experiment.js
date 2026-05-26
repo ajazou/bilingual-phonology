@@ -37,26 +37,16 @@ const KEY_TO_COLOR = {
 // Audio recording helpers
 // ---------------------------------------------------------------------------
 
-// All recorded blobs are also cached here in case upload needs to be retried.
 window.audioRecordings = {};
 
 // ---------------------------------------------------------------------------
 // DataPipe audio upload
 // ---------------------------------------------------------------------------
 
-const DATAPIPE_EXPERIMENT_ID = "5BLgRiMM9iI6";  // from DataPipe dashboard
+const DATAPIPE_EXPERIMENT_ID = "5BLgRiMM9iI6";
 
-/**
- * Upload a single audio Blob to DataPipe using jsPsychPipe.saveBase64Data(),
- * which is the method DataPipe officially recommends for binary files.
- *
- * @param {Blob}   blob      - the audio blob from MediaRecorder
- * @param {string} filename  - e.g. "abc123_character_naming_red_block1_rep1.webm"
- * @returns {Promise<{ok: boolean, status: number}>}
- */
 async function saveAudioToDataPipe(blob, filename) {
   try {
-    // Convert blob → base64 string via FileReader (broadest browser support)
     const base64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result.split(",")[1]);
@@ -64,7 +54,6 @@ async function saveAudioToDataPipe(blob, filename) {
       reader.readAsDataURL(blob);
     });
 
-    // jsPsychPipe.saveBase64Data is the DataPipe-recommended API for audio/binary files
     const response = await jsPsychPipe.saveBase64Data(
       DATAPIPE_EXPERIMENT_ID,
       filename,
@@ -78,14 +67,10 @@ async function saveAudioToDataPipe(blob, filename) {
   }
 }
 
-let _mediaStream = null;          // reused across trials once granted
-let _activeRecorder = null;       // currently running MediaRecorder, if any
-let _activeChunks = [];           // chunks for the current recording
+let _mediaStream = null;
+let _activeRecorder = null;
+let _activeChunks = [];
 
-/**
- * Request microphone access once and cache the stream.
- * Returns a Promise that resolves to the MediaStream, or null on failure.
- */
 async function getMicStream() {
   if (_mediaStream && _mediaStream.active) return _mediaStream;
   try {
@@ -97,12 +82,9 @@ async function getMicStream() {
   }
 }
 
-/**
- * Start recording from the cached stream.
- * Stops any recording already in progress.
- */
 function startRecording() {
-  stopRecording(); // safety: never have two recorders at once
+  // Do NOT call stopRecording() here — stopping is handled explicitly
+  // by the ITI on_load so we never have two recorders at once.
   if (!_mediaStream) return;
   _activeChunks = [];
   _activeRecorder = new MediaRecorder(_mediaStream);
@@ -112,9 +94,6 @@ function startRecording() {
   _activeRecorder.start();
 }
 
-/**
- * Stop the active recording and return a Promise<Blob|null>.
- */
 function stopRecording() {
   return new Promise(resolve => {
     if (!_activeRecorder || _activeRecorder.state === "inactive") {
@@ -195,16 +174,9 @@ function interTrialInterval() {
 }
 
 // ---------------------------------------------------------------------------
-// Keyboard check  (provided by professor, inserted at strategic points)
+// Keyboard check
 // ---------------------------------------------------------------------------
 
-/**
- * Returns a single jsPsych trial that verifies the participant can press one of
- * r / y / b / g. If the key is not detected (e.g. IME intercepts it) the
- * experiment ends with an explanatory message.
- *
- * @param {number|string} whichBlock  label stored in data.block
- */
 function keyboardCheckTrial(whichBlock) {
   const targetKey = jsPsych.randomization.sampleWithoutReplacement(
     ["r", "y", "b", "g"], 1
@@ -244,8 +216,6 @@ function keyboardCheckTrial(whichBlock) {
 // ---------------------------------------------------------------------------
 // Microphone permission trial
 // ---------------------------------------------------------------------------
-// Shown once at the start so getUserMedia() resolves before the first
-// character-naming trial. This avoids an awkward mid-trial permission dialog.
 
 const micPermissionTrial = {
   type: jsPsychHtmlKeyboardResponse,
@@ -260,7 +230,6 @@ const micPermissionTrial = {
   `,
   choices: [" "],
   on_load: function () {
-    // Request permission early so the dialog appears while the screen is visible
     getMicStream();
   },
   data: { task: "mic_permission" }
@@ -463,7 +432,7 @@ function characterNamingInstructions(blockNumber) {
         <h2>Chinese Character Naming — Block ${blockNumber}</h2>
         <p>You will see Chinese characters printed in black.</p>
         <p>Please <strong>say the character aloud in Mandarin</strong> as quickly and accurately as possible.</p>
-        <p>After speaking, press <strong>Space</strong> to move to the next character.</p>
+        <p>After speaking, press <strong>Space</strong> to move to the next character immediately.</p>
         <p>Your voice will be recorded so we can verify your responses.</p>
         <p>Press <strong>Space</strong> to begin.</p>
       </div>
@@ -490,16 +459,21 @@ function colorNamingInstructions(blockNumber) {
 }
 
 // ---------------------------------------------------------------------------
-// Character-naming trial builder  (mic recording + mandatory Space press)
-// ---------------------------------------------------------------------------
+// Character-naming trial builder
 //
 // Flow per trial:
-//   fixation → [recording starts] character shown, participant speaks →
-//   participant presses Space → [recording stops, blob saved] → ITI
+//   fixation (500 ms, NO_KEYS)
+//   → character shown; recording starts in on_load
+//   → participant speaks and presses Space
+//   → on_finish notes the RT and stores the recording key
+//   → a minimal ITI (on_load) immediately stops + uploads the recording,
+//     then shows a blank screen for just 100 ms before the next fixation.
 //
-// The character stimulus trial begins recording in on_load and stops it in
-// on_finish (triggered by the Space keypress), storing the audio blob in
-// window.audioRecordings keyed by "<task>_<item_id>_block<block>_rep<rep>".
+// There is exactly ONE audio file per character trial because:
+//   • startRecording() is called only in the character trial's on_load
+//   • stopRecording() is called only in the ITI's on_load, before the next
+//     character trial's on_load can run.
+// ---------------------------------------------------------------------------
 
 function buildCharacterNamingTrial(trial, blockNumber) {
   const recordingKey = [
@@ -508,6 +482,9 @@ function buildCharacterNamingTrial(trial, blockNumber) {
     `block${blockNumber}`,
     trial.repetition != null ? `rep${trial.repetition}` : "norep"
   ].join("_");
+
+  // Shared slot so the ITI closure can read what the character trial wrote.
+  let pendingTrialData = null;
 
   const characterTrial = {
     type: jsPsychHtmlKeyboardResponse,
@@ -519,7 +496,7 @@ function buildCharacterNamingTrial(trial, blockNumber) {
     `,
     choices: [" "],
     response_ends_trial: true,
-    trial_duration: 5000,   // slightly longer than original to allow for speaking + pressing
+    trial_duration: 5000,
     data: {
       task: "character_naming",
       block: blockNumber,
@@ -535,46 +512,66 @@ function buildCharacterNamingTrial(trial, blockNumber) {
     on_load: function () {
       startRecording();
     },
-    on_finish: async function (data) {
-      // rt here is the time from character onset to Space press — a useful
-      // proxy for voice onset time even without audio analysis.
+    on_finish: function (data) {
+      // Record the RT synchronously. Do NOT stop the recorder here —
+      // that happens in the ITI on_load to avoid a race with the next trial.
       data.space_rt_ms = data.rt;
       data.mic_available = !!_mediaStream;
+      // Pass a reference so the ITI can write upload results back.
+      pendingTrialData = data;
+    }
+  };
 
+  // Minimal ITI: stops + uploads audio, then waits only 100 ms.
+  // Pressing Space on the character trial jumps straight here, so the
+  // participant experiences no perceptible gap before the next fixation.
+  const itiTrial = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "",
+    choices: "NO_KEYS",
+    trial_duration: 100,
+    data: { task: "inter_trial_interval" },
+    on_load: async function () {
+      // Stop the recorder immediately — before anything else can call startRecording().
       const blob = await stopRecording();
+
       if (blob) {
         window.audioRecordings[recordingKey] = blob;
-        data.audio_recorded = true;
-        data.audio_size_bytes = blob.size;
-
-        // Upload to DataPipe immediately after each trial so no audio is lost
-        // if a participant drops out before the end of the experiment.
         const ext = blob.type.includes("ogg") ? "ogg" : "webm";
         const audioFilename = `${subject_id}_${recordingKey}.${ext}`;
-        data.audio_filename = audioFilename;
-        const result = await saveAudioToDataPipe(blob, audioFilename);
-        data.audio_upload_ok = result.ok;
-        data.audio_upload_status = result.status;
+
+        // Upload runs in the background; the ITI's 100 ms gives it a head start
+        // but we do not block the timeline on it.
+        saveAudioToDataPipe(blob, audioFilename).then(result => {
+          if (pendingTrialData) {
+            pendingTrialData.audio_recorded = true;
+            pendingTrialData.audio_size_bytes = blob.size;
+            pendingTrialData.audio_filename = audioFilename;
+            pendingTrialData.audio_upload_ok = result.ok;
+            pendingTrialData.audio_upload_status = result.status;
+          }
+        });
       } else {
-        data.audio_recorded = false;
-        data.audio_upload_ok = false;
+        if (pendingTrialData) {
+          pendingTrialData.audio_recorded = false;
+          pendingTrialData.audio_upload_ok = false;
+        }
       }
     }
   };
 
-  return [
-    fixationTrial(),
-    characterTrial,
-    interTrialInterval()
-  ];
+  // No trailing interTrialInterval — the 500 ms fixation of the NEXT trial
+  // provides the natural pause between responses.
+  return [fixationTrial(), characterTrial, itiTrial];
 }
 
 // ---------------------------------------------------------------------------
-// Practice character-naming trial builder  (same mic + Space pattern)
+// Practice character-naming trial builder  (same pattern as above)
 // ---------------------------------------------------------------------------
 
 function buildPracticeCharacterTrial(item) {
   const recordingKey = `practice_character_${item.character}`;
+  let pendingTrialData = null;
 
   const characterTrial = {
     type: jsPsychHtmlKeyboardResponse,
@@ -596,38 +593,50 @@ function buildPracticeCharacterTrial(item) {
     on_load: function () {
       startRecording();
     },
-    on_finish: async function (data) {
+    on_finish: function (data) {
       data.space_rt_ms = data.rt;
       data.mic_available = !!_mediaStream;
+      pendingTrialData = data;
+    }
+  };
+
+  const itiTrial = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "",
+    choices: "NO_KEYS",
+    trial_duration: 100,
+    data: { task: "inter_trial_interval" },
+    on_load: async function () {
       const blob = await stopRecording();
+
       if (blob) {
         window.audioRecordings[recordingKey] = blob;
-        data.audio_recorded = true;
-        data.audio_size_bytes = blob.size;
-
-        // Upload to DataPipe; extension matches the actual mimeType
         const ext = blob.type.includes("ogg") ? "ogg" : "webm";
         const audioFilename = `${subject_id}_${recordingKey}.${ext}`;
-        data.audio_filename = audioFilename;
-        const result = await saveAudioToDataPipe(blob, audioFilename);
-        data.audio_upload_ok = result.ok;
-        data.audio_upload_status = result.status;
+
+        saveAudioToDataPipe(blob, audioFilename).then(result => {
+          if (pendingTrialData) {
+            pendingTrialData.audio_recorded = true;
+            pendingTrialData.audio_size_bytes = blob.size;
+            pendingTrialData.audio_filename = audioFilename;
+            pendingTrialData.audio_upload_ok = result.ok;
+            pendingTrialData.audio_upload_status = result.status;
+          }
+        });
       } else {
-        data.audio_recorded = false;
-        data.audio_upload_ok = false;
+        if (pendingTrialData) {
+          pendingTrialData.audio_recorded = false;
+          pendingTrialData.audio_upload_ok = false;
+        }
       }
     }
   };
 
-  return [
-    fixationTrial(),
-    characterTrial,
-    interTrialInterval()
-  ];
+  return [fixationTrial(), characterTrial, itiTrial];
 }
 
 // ---------------------------------------------------------------------------
-// Color-naming trial builder  (unchanged logic, keyboard check added upstream)
+// Color-naming trial builders  (unchanged logic)
 // ---------------------------------------------------------------------------
 
 function buildPracticeColorTrial(item) {
@@ -736,7 +745,7 @@ const practiceTimeline = [
       <div class="instructions">
         <h2>Practice — Character Reading</h2>
         <p>First, you will practice reading Chinese characters aloud.</p>
-        <p>Each character will appear on screen. Say it aloud in Mandarin, then press <strong>Space</strong>.</p>
+        <p>Each character will appear on screen. Say it aloud in Mandarin, then press <strong>Space</strong> to move immediately to the next character.</p>
         <p>Your voice will be recorded during the real experiment.</p>
         <p>Press <strong>Space</strong> to start.</p>
       </div>
@@ -756,7 +765,6 @@ const practiceTimeline = [
     `,
     choices: [" "]
   },
-  // Keyboard check before practice color trials
   keyboardCheckTrial("practice"),
   ...practiceColorItems.flatMap(buildPracticeColorTrial),
   {
@@ -775,10 +783,6 @@ const practiceTimeline = [
 // ---------------------------------------------------------------------------
 // Experimental block pair builder
 // ---------------------------------------------------------------------------
-//
-// Each pair = character-naming block → color-naming block.
-// A fresh keyboard check is inserted before every color-naming block to catch
-// participants who accidentally re-enable their IME between blocks.
 
 function buildExperimentalPair(blockNumber) {
   const colorTrials = pseudoShuffleTrials([
@@ -786,14 +790,12 @@ function buildExperimentalPair(blockNumber) {
     ...makeFillerTrials(blockNumber)
   ]);
 
-  // Character-naming block uses the same items in a different random order
   const characterTrials = pseudoShuffleTrials(colorTrials);
 
   return [
     characterNamingInstructions(blockNumber),
     ...characterTrials.flatMap(trial => buildCharacterNamingTrial(trial, blockNumber)),
     colorNamingInstructions(blockNumber),
-    // Keyboard check immediately before each color-naming block
     keyboardCheckTrial(blockNumber),
     ...colorTrials.flatMap(trial => buildColorNamingTrial(trial, blockNumber))
   ];
@@ -871,7 +873,7 @@ const timeline = [
   welcomeScreen,
   participantInfo,
   colorKeyInstructions,
-  micPermissionTrial,         // request mic access early, before practice
+  micPermissionTrial,
   ...practiceTimeline,
   ...firstExperimentalPair,
   restBreak,
