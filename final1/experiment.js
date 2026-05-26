@@ -847,7 +847,7 @@ const save_data = {
   data_string: () => jsPsych.data.get().csv(),
   on_finish: function () {
     window.location.href =
-      "https://app.prolific.com/submissions/complete?cc=CY0FN373";
+      "https://app.prolific.com/submissions/complete?cc=CNZB4UVD";
   }
 };
 
