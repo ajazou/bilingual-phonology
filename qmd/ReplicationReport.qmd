@@ -1,0 +1,1123 @@
+---
+title: "Replication of cross-language activation in Mandarin-English bilinguals by Li, Wang, & Lin (2017, International Journal of Bilingualism)"
+author: "Aja Zou (ajazou@stanford.edu)"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+format:
+  html:
+    toc: true
+    toc_depth: 3
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+<!-- This report follows a standardized template to ensure consistency across replication projects and is intended to serve as supplementary material accompanying the aggregate results of the project. -->
+
+```{r setup}
+required_packages <- c(
+  "tidyverse", "readr", "stringr", "ggplot2", "GGally", "janitor",
+  "ggthemes", "lme4", "lmerTest", "broom.mixed"
+)
+
+missing_packages <- required_packages[
+  !vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)
+]
+
+if (length(missing_packages) > 0) {
+  install.packages(
+    missing_packages,
+    repos = "https://cloud.r-project.org",
+    dependencies = TRUE
+  )
+}
+
+library(tidyverse)
+library(readr)
+library(stringr)
+library(ggplot2)
+library(GGally)
+library(janitor)
+library(ggthemes)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+
+theme_set(theme_few())
+
+folder_path <- "/Users/aja/Desktop/ling245/data"
+ling245_path <- dirname(folder_path)
+
+output_path <- file.path(ling245_path, "analysis_outputs")
+regression_output_path <- file.path(ling245_path, "regression_outputs")
+mixed_output_path <- file.path(ling245_path, "mixed_effects_outputs")
+
+dir.create(output_path, showWarnings = FALSE)
+dir.create(regression_output_path, showWarnings = FALSE)
+dir.create(mixed_output_path, showWarnings = FALSE)
+```
+
+## Introduction
+
+Li et al. (2017) investigated whether phonological information from a bilingual speaker's non-target language is automatically activated during speech production, and whether recent language use modulates this activation. In their study, Mandarin-English bilinguals were asked to name the ink color of Chinese characters in English via a Stroop task. The critical manipulation involved characters that were homophones of color words in Chinese, such as a character pronounced 洪 /hong2/ ("flood") that is not the word 红 /hong2/ ("red"). In Experiment 1, these homophones did not significantly interfere with English color naming. However, in Experiment 2, participants first named the same characters aloud in Chinese before performing the English color-naming task, and under this condition, homophone trials produced significantly slower responses than neutral trials.
+
+My study aimed to replicate Experiment 2 of Li et al. (2017). The key finding of interest was the interference effect in the congruent homophone condition relative to the neutral condition during English color naming following prior Chinese character naming. Replicating this effect would provide support for the claim that recent use of a bilingual's first language increases activation of its phonological representations, which can then interfere with production in a second language.
+
+## Methods
+
+### Power Analysis
+
+The primary effect of interest in this replication was the interference effect in the congruent homophone condition (S+T+) relative to the neutral condition in Experiment 2. In the original study, this comparison was tested with a paired-samples t-test and was reported as *t*(23) = -2.787, *p* = .010. Using this result, the standardized within-subject effect size can be approximated as $d_z = t / \sqrt{n}$, which yields an estimated effect size of approximately $d_z = 0.57$.
+
+Using this effect size estimate and assuming a two-tailed paired-samples test with alpha = .05, the approximate sample sizes needed to detect an effect of this size are:
+
+- 80% power: 27 participants
+- 90% power: 35 participants
+- 95% power: 43 participants
+
+The original Experiment 2 included 24 participants. For the replication, the planned target sample was 35 participants if feasible, because this would provide approximately 90% power while remaining realistic for recruitment. If recruitment constraints made this difficult, a minimum of 27 participants was planned so that the study would still achieve approximately 80% power.
+
+### Planned Sample
+
+The planned sample consisted of adult Mandarin-English bilinguals recruited primarily via the Prolific online participant platform. If needed, additional participants would be recruited from the Stanford community to meet the target sample size. To match the original study as closely as possible, participants were required to be native speakers of Mandarin Chinese who learned English as a second language, had normal or corrected-to-normal vision, and were able to reliably name the colors red, yellow, blue, and green in English. In the original Experiment 2, participants were 24 graduate students, 14 of whom were female, ranging in age from 19 to 30 years. They had all begun learning English at age 9 or 10, and their average TOEFL score was reported as 81.6%.
+
+The planned sample size for the replication was 35 participants in order to achieve approximately 90% power to detect the originally reported effect. This represents an increase from the original sample size of 24 participants and was intended to improve statistical reliability. If recruitment constraints arose, a minimum sample size of 27 participants, corresponding to approximately 80% power, was considered acceptable. Data collection would stop when the target number of usable participants had been reached, or when the end of the academic term made further recruitment impractical. Participants who did not complete all blocks, failed to follow task instructions, or produced unusable response data on a substantial number of trials would be excluded according to the analysis rules described below.
+
+### Materials
+
+The replication followed the original Experiment 2 materials as closely as possible. The original study used Chinese characters displayed in four ink colors: red, yellow, green, and blue. The six critical conditions were congruent color characters, congruent homophone characters (S+T+), congruent segment-overlap characters (S+T−), congruent tone-overlap characters (S−T+), neutral characters, and incongruent color characters. The original article stated that the character conditions and stimuli were the same as those in Experiment 1.
+
+The article reported that Experiment 2 included a total of 48 critical trials, consisting of six conditions × four colors × two repetitions, and 48 fillers. It further stated that the trials were pseudo-randomly divided into two blocks, with 24 critical trials and 24 fillers in each, and with a character-naming block prior to each color-naming block. In addition, the character-naming block consisted of the same characters printed in black ink, presented before the corresponding color-naming block.
+
+The original set of critical characters included examples such as 红 /hong2/ ("red"), 洪 /hong2/ ("flood"), 轰 /hong1/ ("boom"), 瓶 /ping2/ ("bottle"), and 牵 /qian1/ ("lead along"), along with corresponding items for yellow, blue, and green. The replication aimed to use the same characters and color mappings. If exact original stimulus files were unavailable, the materials were reconstructed from the characters listed in the article and matched as closely as possible in format and presentation.
+
+### Procedure
+
+The replication followed the original Experiment 2 procedure as closely as possible. Participants completed character-naming and color-naming blocks. In the character-naming blocks, participants read each Chinese character aloud in Chinese as quickly and accurately as possible. In the color-naming blocks, participants named the ink color of the character in English as quickly and accurately as possible while ignoring the character itself.
+
+The target timing structure followed the original study as closely as possible: a 500 ms fixation appeared before each trial, the stimulus appeared until a response was made, and trials timed out after 3000 ms. The original study included practice character-naming and practice Stroop trials before the experiment, and the replication included practice trials to familiarize participants with both tasks.
+
+### Analysis Plan
+
+The primary confirmatory analysis tested whether the congruent homophone condition (S+T+) produced slower English color naming than the neutral condition, replicating the key Experiment 2 finding. In the original article, planned paired-sample t-tests were used to compare each condition against the neutral condition. The main analysis of interest in the present replication was therefore a paired-samples t-test comparing participant mean reaction times in the congruent homophone condition and the neutral condition.
+
+The replication followed the original data-cleaning procedure as closely as possible. The original article stated that RT analyses were based on correct trials only, trials were removed when responses failed to trigger the voice key, data that were two standard deviations above or below the cell mean were excluded, and all analyses were based on log-transformed data. Accordingly, the replication:
+
+1. analyzed reaction times from correct trials only;
+2. removed trials with missing or invalid RTs;
+3. excluded trials with RTs more than 2 SD above or below the relevant participant-by-condition cell mean; and
+4. conducted the primary analysis on log-transformed RTs.
+
+Secondary confirmatory analyses compared the other critical conditions against neutral, as in the original study:
+
+- congruent color character vs. neutral
+- incongruent color character vs. neutral
+- S+T− vs. neutral
+- S−T+ vs. neutral
+
+A successful replication was defined primarily by observing an interference effect in the same direction as the original Experiment 2 result, such that homophone trials were slower than neutral trials. Additional exploratory analyses examined raw RTs, accuracy patterns, first-presentation-only analyses, regression models, and mixed-effects models.
+
+### Differences from Original Study
+
+The goal of my study was to replicate Experiment 2 as closely as possible, but some differences may still occur. First, the original experiment was implemented in DMDX software, whereas the present replication used a different software platform. Second, the participant pool may differ from the original in institution, location, and exact English proficiency levels. Third, exact original stimulus files, fonts, or randomization scripts may not be available, in which case the materials were reconstructed from the information given in the article. These differences are not ideal, but they are not clearly identified by the original authors as crucial moderators of the effect, as long as the central manipulation is preserved: participants complete Chinese character naming immediately before English color naming using the same character set.
+
+A further difference is that the present replication planned a somewhat larger sample size than the original study. This change was intended to improve statistical power and precision, not to alter the theoretical question. Any deviations from the original materials, procedure, or analysis plan are reported transparently in the final report.
+
+### Methods Addendum (Post Data Collection)
+
+#### Actual Sample
+
+```{r load-and-clean, include=FALSE}
+files <- list.files(folder_path, pattern = "\\.csv$", full.names = TRUE)
+
+all_data <- files %>%
+  map_dfr(
+    ~ read_csv(.x, col_types = cols(.default = col_character())),
+    .id = "file_id"
+  ) %>%
+  mutate(file_name = basename(files[as.integer(file_id)]))
+
+clean_data <- all_data %>%
+  mutate(
+    rt = suppressWarnings(as.numeric(rt)),
+    correct = case_when(
+      correct == "true" ~ TRUE,
+      correct == "false" ~ FALSE,
+      TRUE ~ NA
+    ),
+    is_critical = case_when(
+      is_critical == "true" ~ TRUE,
+      is_critical == "false" ~ FALSE,
+      TRUE ~ NA
+    ),
+    is_filler = case_when(
+      is_filler == "true" ~ TRUE,
+      is_filler == "false" ~ FALSE,
+      TRUE ~ NA
+    ),
+    subject_id = as.character(subject_id),
+    condition = as.character(condition),
+    task = as.character(task)
+  )
+
+critical_color <- clean_data %>%
+  filter(task == "color_naming", is_critical == TRUE, !is.na(condition)) %>%
+  mutate(
+    condition = factor(
+      condition,
+      levels = c(
+        "congruent_color_character",
+        "congruent_S_T_plus",
+        "congruent_S_plus_T_minus",
+        "congruent_S_minus_T_plus",
+        "incongruent_color_character",
+        "neutral"
+      ),
+      labels = c(
+        "Congruent color character",
+        "S+T+ homophone",
+        "S+T- segment only",
+        "S-T+ tone only",
+        "Incongruent color character",
+        "Neutral"
+      )
+    )
+  )
+
+trial_counts <- critical_color %>% count(subject_id, condition)
+
+rt_data <- critical_color %>%
+  filter(correct == TRUE, !is.na(rt), rt > 0, rt <= 3000)
+
+rt_clean <- rt_data %>%
+  group_by(subject_id, condition) %>%
+  mutate(
+    cell_mean = mean(rt, na.rm = TRUE),
+    cell_sd = sd(rt, na.rm = TRUE),
+    outlier = if_else(
+      is.na(cell_sd) | cell_sd == 0,
+      FALSE,
+      rt < cell_mean - 2 * cell_sd | rt > cell_mean + 2 * cell_sd
+    )
+  ) %>%
+  ungroup() %>%
+  filter(outlier == FALSE) %>%
+  mutate(log_rt = log(rt))
+
+cleaning_summary <- tibble(
+  original_critical_trials = nrow(critical_color),
+  correct_rt_trials_before_outlier_removal = nrow(rt_data),
+  trials_after_outlier_removal = nrow(rt_clean),
+  removed_for_error_or_missing_rt = nrow(critical_color) - nrow(rt_data),
+  removed_as_outliers = nrow(rt_data) - nrow(rt_clean)
+)
+
+subject_means <- rt_clean %>%
+  group_by(subject_id, condition) %>%
+  summarise(
+    mean_rt = mean(rt, na.rm = TRUE),
+    mean_log_rt = mean(log_rt, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+wide_log <- subject_means %>%
+  select(subject_id, condition, mean_log_rt) %>%
+  pivot_wider(names_from = condition, values_from = mean_log_rt)
+
+wide_raw <- subject_means %>%
+  select(subject_id, condition, mean_rt) %>%
+  pivot_wider(names_from = condition, values_from = mean_rt)
+
+comparison_conditions <- c(
+  "Congruent color character",
+  "S+T+ homophone",
+  "S+T- segment only",
+  "S-T+ tone only",
+  "Incongruent color character"
+)
+```
+
+### Actual sample and exclusions 
+
+The final dataset contained 35 participants and 1,680 critical color-naming trials, matching the expected number of trials for this design. Three participants (`m25boogf27`, `na64l7rp37`, and `pf8w7d4z6j`) were excluded from the final participant-level paired t-tests because they did not have complete usable data across the required critical conditions after filtering. Therefore, the main paired t-test analyses were based on 32 participants.
+
+Among the retained participants, most contributed 7 or 8 usable trials per condition after cleaning, close to the expected 8 trials per condition. One retained participant had only 2 usable trials per condition, but because this participant still had usable data in all six critical conditions, they were included in the paired analyses.
+
+```{r actual-sample-tables}
+cleaning_summary
+
+trial_counts %>%
+  pivot_wider(names_from = condition, values_from = n, values_fill = 0)
+```
+
+#### Differences from pre-data collection methods plan
+
+The final study followed the planned analysis procedure closely. Data were collected from 35 Mandarin-English bilingual participants, matching the planned target sample size for approximately 90% power. The main RT analysis used correct critical color-naming trials only, removed missing or invalid RTs, excluded trials outside the 0–3000 ms response window, applied the planned ±2 SD outlier rule within participant-by-condition cells, and analyzed log-transformed RTs.
+
+The main procedural difference from the original study was the response collection method. The original experiment used DMDX and voice-key timing, whereas this replication was implemented online and used keyboard responses for color naming. Because of this, the absolute RT values may not be directly comparable to the original study. The participant pool also differed from the original study, which tested graduate students, whereas this replication recruited participants through Prolific.
+
+
+## Results
+
+### Data preparation
+
+Data from the individual CSV files were combined into one dataset and filtered to critical color-naming trials. Reaction-time analyses were based only on correct trials with valid RTs. Trials were removed if they had missing RTs, non-positive RTs, or RTs above the 3000 ms response deadline. Then, within each participant-by-condition cell, RTs more than 2 standard deviations above or below the cell mean were excluded. The remaining RTs were log-transformed for confirmatory analyses.
+
+Of the 1,680 critical color-naming trials, 1,475 remained after removing incorrect, missing, invalid, or timeout trials. The ±2 SD outlier rule removed 55 additional trials, leaving 1,420 cleaned RT trials for the main analysis. Overall, the cleaning procedure removed unusable or extreme responses while retaining most of the experimental data.
+
+```{r data-preparation-output}
+cleaning_summary
+```
+
+### Confirmatory analysis
+
+The primary confirmatory analysis compared S+T+ homophone trials against neutral trials using a paired-samples t-test on participant-level mean log RTs. Secondary planned comparisons tested each other critical condition against neutral.
+
+```{r planned-tests}
+t_test_results <- map_dfr(comparison_conditions, function(cond) {
+  temp_log <- wide_log %>%
+    select(subject_id, all_of(cond), Neutral) %>%
+    drop_na()
+  
+  temp_raw <- wide_raw %>%
+    select(subject_id, all_of(cond), Neutral) %>%
+    drop_na()
+  
+  test <- t.test(temp_log[[cond]], temp_log[["Neutral"]], paired = TRUE)
+  
+  tibble(
+    condition = cond,
+    n_subjects = nrow(temp_log),
+    mean_condition_rt = mean(temp_raw[[cond]], na.rm = TRUE),
+    mean_neutral_rt = mean(temp_raw[["Neutral"]], na.rm = TRUE),
+    stroop_effect_ms = mean(temp_raw[["Neutral"]] - temp_raw[[cond]], na.rm = TRUE),
+    t_value = unname(test$statistic),
+    df = unname(test$parameter),
+    p_value = test$p.value,
+    significant = case_when(
+      p_value < .001 ~ "***",
+      p_value < .01 ~ "**",
+      p_value < .05 ~ "*",
+      TRUE ~ ""
+    )
+  )
+})
+
+t_test_results
+
+write_csv(t_test_results, file.path(output_path, "planned_t_tests_vs_neutral.csv"))
+```
+
+The primary confirmatory comparison showed that S+T+ homophone trials were slower than neutral trials. Mean RT was 902.80 ms in the S+T+ homophone condition and 829.80 ms in the neutral condition, corresponding to a Stroop effect of -73.00 ms. Because the Stroop effect was calculated as neutral RT minus condition RT, this negative value means that participants were slower in the homophone condition than in the neutral condition. This effect was significant, *t*(31) = 2.56, *p* = .016. This result supports the main prediction of the replication and matches the direction of the original Experiment 2 finding.
+
+The secondary planned comparisons showed a more selective pattern. The incongruent color character condition produced the largest interference effect, with responses 176.32 ms slower than neutral, *t*(31) = 4.54, *p* < .001. This is expected because incongruent color characters directly conflict with the required English color response. In contrast, the congruent color character condition, S+T− segment-only condition, and S−T+ tone-only condition were not significantly different from neutral. This pattern suggests that the strongest interference came from the full Mandarin homophone condition and from directly incongruent color characters, rather than from segment-only or tone-only overlap alone.
+
+```{r mean-rt-figure, fig.width=9, fig.height=5}
+rt_plot <- ggplot(subject_means, aes(x = condition, y = mean_rt)) +
+  geom_jitter(width = 0.15, alpha = 0.35) +
+  stat_summary(fun = mean, geom = "point", size = 4) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.18) +
+  labs(
+    title = "Mean Reaction Time by Condition",
+    x = "Condition",
+    y = "Mean RT, ms"
+  ) +
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))
+
+rt_plot
+
+ggsave(file.path(output_path, "mean_rt_by_condition.png"), rt_plot, width = 9, height = 5, dpi = 300)
+```
+
+This figure shows participant-level mean RTs across the six critical conditions. The neutral condition had a mean RT of about 830 ms. The S+T+ homophone condition was visibly slower than neutral, with a mean RT of about 903 ms, and the incongruent color character condition was the slowest condition overall, with a mean RT of about 1006 ms. The other conditions were closer to neutral. This visual pattern is consistent with the confirmatory t-tests: the homophone and incongruent conditions showed interference relative to neutral, while the segment-only, tone-only, and congruent color-character conditions did not show reliable differences.
+
+```{r stroop-effect-figure, fig.width=9, fig.height=5}
+stroop_plot <- ggplot(t_test_results, aes(x = condition, y = stroop_effect_ms)) +
+  geom_col(width = 0.7, alpha = 0.8) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_text(
+    aes(label = significant),
+    vjust = ifelse(t_test_results$stroop_effect_ms >= 0, -0.5, 1.3),
+    size = 6
+  ) +
+  labs(
+    title = "Stroop Effects Compared with Neutral",
+    subtitle = "Positive values = faster than neutral; negative values = slower than neutral",
+    x = "Condition",
+    y = "Neutral RT - Condition RT, ms"
+  ) +
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))
+
+stroop_plot
+
+ggsave(file.path(output_path, "stroop_effects_vs_neutral.png"), stroop_plot, width = 9, height = 5, dpi = 300)
+```
+
+This figure summarizes each planned comparison relative to neutral. Negative values indicate slower responses than neutral, so larger downward bars represent stronger interference. The S+T+ homophone condition showed significant interference, while the incongruent color character condition showed the largest interference effect. The S+T− and S−T+ overlap conditions were close to zero or not statistically reliable, suggesting that partial phonological overlap alone was not enough to produce a robust effect in this replication.
+
+### Exploratory analyses
+
+#### Accuracy analyses
+
+```{r accuracy-analysis}
+accuracy_summary <- critical_color %>%
+  group_by(condition) %>%
+  summarise(
+    n_trials = n(),
+    n_correct = sum(correct == TRUE, na.rm = TRUE),
+    n_error = sum(correct == FALSE, na.rm = TRUE),
+    accuracy = n_correct / n_trials,
+    error_rate = n_error / n_trials,
+    .groups = "drop"
+  )
+
+accuracy_subject_means <- critical_color %>%
+  group_by(subject_id, condition) %>%
+  summarise(
+    accuracy = mean(correct == TRUE, na.rm = TRUE),
+    error_rate = mean(correct == FALSE, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+accuracy_wide <- accuracy_subject_means %>%
+  select(subject_id, condition, error_rate) %>%
+  pivot_wider(names_from = condition, values_from = error_rate)
+
+accuracy_t_tests <- map_dfr(comparison_conditions, function(cond) {
+  temp <- accuracy_wide %>%
+    select(subject_id, all_of(cond), Neutral) %>%
+    drop_na()
+  
+  test <- t.test(temp[[cond]], temp[["Neutral"]], paired = TRUE)
+  
+  tibble(
+    condition = cond,
+    n_subjects = nrow(temp),
+    mean_condition_error_rate = mean(temp[[cond]], na.rm = TRUE),
+    mean_neutral_error_rate = mean(temp[["Neutral"]], na.rm = TRUE),
+    error_difference = mean(temp[[cond]] - temp[["Neutral"]], na.rm = TRUE),
+    t_value = unname(test$statistic),
+    df = unname(test$parameter),
+    p_value = test$p.value
+  )
+})
+
+accuracy_summary
+accuracy_t_tests
+
+write_csv(accuracy_summary, file.path(output_path, "accuracy_summary.csv"))
+write_csv(accuracy_t_tests, file.path(output_path, "accuracy_t_tests_vs_neutral.csv"))
+```
+Accuracy was high across all six critical conditions, ranging from 85.7% in the incongruent color-character condition to 88.6% in the S+T+ homophone and S−T+ tone-only conditions. The neutral condition had an accuracy of 87.9%. Paired t-tests comparing each condition’s error rate against neutral showed no significant accuracy differences. The S+T+ homophone condition did not differ significantly from neutral in error rate, *t*(34) = -1.44, *p* = .160. The incongruent color-character condition showed the largest numerical increase in errors relative to neutral, but this difference was only marginal, *t*(34) = 1.97, *p* = .057.
+
+Overall, the accuracy results suggest that the main RT effects were not caused by a speed-accuracy tradeoff. Participants were not substantially less accurate in the S+T+ homophone condition than in the neutral condition, even though they were slower in that condition in the RT analysis.
+
+#### First-presentation-only analysis
+
+```{r first-presentation-analysis}
+trial_order_col_critical <- intersect(c("trial_index", "time_elapsed"), names(critical_color))[1]
+
+if (!is.na(trial_order_col_critical)) {
+  critical_color_ordered <- critical_color %>%
+    mutate(
+      original_row_order = row_number(),
+      trial_order_for_analysis = suppressWarnings(as.numeric(.data[[trial_order_col_critical]]))
+    )
+} else {
+  critical_color_ordered <- critical_color %>%
+    mutate(
+      original_row_order = row_number(),
+      trial_order_for_analysis = as.numeric(original_row_order)
+    )
+}
+
+first_presentation <- critical_color_ordered %>%
+  filter(correct == TRUE, !is.na(rt), rt > 0, rt <= 3000) %>%
+  group_by(subject_id, character, condition) %>%
+  arrange(trial_order_for_analysis, .by_group = TRUE) %>%
+  slice(1) %>%
+  ungroup()
+
+first_presentation_clean <- first_presentation %>%
+  group_by(subject_id, condition) %>%
+  mutate(
+    cell_mean = mean(rt, na.rm = TRUE),
+    cell_sd = sd(rt, na.rm = TRUE),
+    outlier = if_else(
+      is.na(cell_sd) | cell_sd == 0,
+      FALSE,
+      rt < cell_mean - 2 * cell_sd | rt > cell_mean + 2 * cell_sd
+    )
+  ) %>%
+  ungroup() %>%
+  filter(outlier == FALSE) %>%
+  mutate(log_rt = log(rt))
+
+first_subject_means <- first_presentation_clean %>%
+  group_by(subject_id, condition) %>%
+  summarise(
+    mean_rt = mean(rt, na.rm = TRUE),
+    mean_log_rt = mean(log_rt, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+first_wide_log <- first_subject_means %>%
+  select(subject_id, condition, mean_log_rt) %>%
+  pivot_wider(names_from = condition, values_from = mean_log_rt)
+
+first_wide_raw <- first_subject_means %>%
+  select(subject_id, condition, mean_rt) %>%
+  pivot_wider(names_from = condition, values_from = mean_rt)
+
+first_presentation_t_tests <- map_dfr(comparison_conditions, function(cond) {
+  temp_log <- first_wide_log %>% select(subject_id, all_of(cond), Neutral) %>% drop_na()
+  temp_raw <- first_wide_raw %>% select(subject_id, all_of(cond), Neutral) %>% drop_na()
+  test <- t.test(temp_log[[cond]], temp_log[["Neutral"]], paired = TRUE)
+  
+  tibble(
+    condition = cond,
+    n_subjects = nrow(temp_log),
+    mean_condition_rt = mean(temp_raw[[cond]], na.rm = TRUE),
+    mean_neutral_rt = mean(temp_raw[["Neutral"]], na.rm = TRUE),
+    stroop_effect_ms = mean(temp_raw[["Neutral"]] - temp_raw[[cond]], na.rm = TRUE),
+    t_value = unname(test$statistic),
+    df = unname(test$parameter),
+    p_value = test$p.value,
+    significant = case_when(
+      p_value < .001 ~ "***",
+      p_value < .01 ~ "**",
+      p_value < .05 ~ "*",
+      TRUE ~ ""
+    )
+  )
+})
+
+first_presentation_t_tests
+
+write_csv(first_presentation_t_tests, file.path(output_path, "first_presentation_t_tests_vs_neutral.csv"))
+```
+
+```{r first-presentation-figure, fig.width=9, fig.height=5}
+first_stroop_plot <- ggplot(first_presentation_t_tests, aes(x = condition, y = stroop_effect_ms)) +
+  geom_col(width = 0.7, alpha = 0.8) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_text(
+    aes(label = significant),
+    vjust = ifelse(first_presentation_t_tests$stroop_effect_ms >= 0, -0.5, 1.3),
+    size = 6
+  ) +
+  labs(
+    title = "First-Presentation-Only Stroop Effects Compared with Neutral",
+    subtitle = "Positive values = faster than neutral; negative values = slower than neutral",
+    x = "Condition",
+    y = "Neutral RT - Condition RT, ms"
+  ) +
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))
+
+first_stroop_plot
+
+ggsave(file.path(output_path, "first_presentation_stroop_effects_vs_neutral.png"), first_stroop_plot, width = 9, height = 5, dpi = 300)
+```
+
+The first-presentation-only analysis tested whether the main effect remained when repeated exposures to the same characters were removed. This analysis produced the same general pattern as the main RT analysis. The S+T+ homophone condition was significantly slower than neutral, with a Stroop effect of -103.48 ms, *t*(31) = 2.28, *p* = .030. The incongruent color-character condition also showed a strong interference effect, with responses 207.31 ms slower than neutral, *t*(31) = 4.03, *p* < .001.
+
+The other conditions were not significantly different from neutral. Congruent color characters, S+T− segment-only trials, and S−T+ tone-only trials were all numerically slower than neutral in this analysis, but none of these differences reached significance. Importantly, the S+T+ homophone effect remained significant even when only first presentations were included. This suggests that the main homophone interference effect was not driven only by repeated exposure to the same characters across the experiment.
+
+#### Regression analyses
+
+```{r regression-data}
+trial_order_col_rt <- intersect(c("trial_index", "time_elapsed"), names(rt_clean))[1]
+
+if (!is.na(trial_order_col_rt)) {
+  regression_data <- rt_clean %>%
+    mutate(
+      condition = relevel(condition, ref = "Neutral"),
+      condition_index = as.numeric(condition),
+      repetition_numeric = if ("repetition" %in% names(.)) suppressWarnings(as.numeric(repetition)) else NA_real_,
+      original_row_order = row_number(),
+      trial_order_for_analysis = suppressWarnings(as.numeric(.data[[trial_order_col_rt]]))
+    )
+} else {
+  regression_data <- rt_clean %>%
+    mutate(
+      condition = relevel(condition, ref = "Neutral"),
+      condition_index = as.numeric(condition),
+      repetition_numeric = if ("repetition" %in% names(.)) suppressWarnings(as.numeric(repetition)) else NA_real_,
+      original_row_order = row_number(),
+      trial_order_for_analysis = as.numeric(original_row_order)
+    )
+}
+
+write_csv(regression_data, file.path(regression_output_path, "regression_trial_level_data.csv"))
+```
+
+```{r ggpairs-figure, fig.width=8, fig.height=8}
+numeric_vars_for_pairs <- regression_data %>%
+  transmute(
+    RT = rt,
+    LogRT = log_rt,
+    Cond = condition_index,
+    TrialOrder = trial_order_for_analysis,
+    Repetition = repetition_numeric
+  ) %>%
+  select(where(~ sum(!is.na(.x)) > 0))
+
+pairs_plot <- ggpairs(numeric_vars_for_pairs, progress = FALSE) +
+  theme(strip.text = element_text(size = 10), axis.text = element_text(size = 8))
+
+pairs_plot
+
+ggsave(file.path(regression_output_path, "regression_numeric_pairs_plot.png"), pairs_plot, width = 8, height = 8, dpi = 300)
+```
+
+The pairwise plot shows that raw RT and log RT were strongly correlated, as expected. Trial order was negatively correlated with RT and log RT, suggesting that participants became faster as the experiment progressed. Repetition showed little relationship with RT. This pattern supports including trial order as a control in the regression analysis.
+
+```{r regression-models}
+model.condition <- lm(log_rt ~ condition, data = regression_data)
+model_condition_table <- as.data.frame(coef(summary(model.condition))) %>%
+  rownames_to_column("term") %>%
+  rename(estimate = Estimate, std_error = `Std. Error`, t_value = `t value`, p_value = `Pr(>|t|)`)
+
+homophone_regression_data <- regression_data %>%
+  filter(condition %in% c("Neutral", "S+T+ homophone")) %>%
+  mutate(homophone_trial = as.integer(condition == "S+T+ homophone"))
+
+model.homophone <- lm(log_rt ~ homophone_trial, data = homophone_regression_data)
+model_homophone_table <- as.data.frame(coef(summary(model.homophone))) %>%
+  rownames_to_column("term") %>%
+  rename(estimate = Estimate, std_error = `Std. Error`, t_value = `t value`, p_value = `Pr(>|t|)`)
+
+model_condition_table
+model_homophone_table
+
+capture.output(summary(model.condition), file = file.path(regression_output_path, "model_condition_summary.txt"))
+capture.output(summary(model.homophone), file = file.path(regression_output_path, "model_homophone_vs_neutral_summary.txt"))
+write_csv(model_condition_table, file.path(regression_output_path, "model_condition_coefficients.csv"))
+write_csv(model_homophone_table, file.path(regression_output_path, "model_homophone_vs_neutral_coefficients.csv"))
+```
+
+```{r regression-primary-plot, fig.width=7, fig.height=5}
+plot.homophone_regression <- ggplot(homophone_regression_data, aes(x = factor(homophone_trial), y = log_rt)) +
+  geom_jitter(width = 0.12, alpha = 0.25) +
+  stat_summary(fun = mean, geom = "point", size = 4) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) +
+  scale_x_discrete(labels = c("0" = "Neutral", "1" = "S+T+ homophone")) +
+  labs(
+    x = "Trial type",
+    y = "Log reaction time",
+    title = "Primary Regression: S+T+ Homophone vs. Neutral",
+    subtitle = "Higher log RT means slower color naming"
+  )
+
+plot.homophone_regression
+
+ggsave(file.path(regression_output_path, "regression_primary_homophone_vs_neutral.png"), plot.homophone_regression, width = 7, height = 5, dpi = 300)
+```
+
+The primary regression plot shows that S+T+ homophone trials had higher average log RTs than neutral trials. The regression coefficient for homophone trials was positive and significant, indicating slower responses in the homophone condition. This matches the paired t-test result and supports the main replication effect.
+
+# Summary of regression analyses
+
+The regression analyses provide a trial-level version of the main result. The pairwise plot shows that raw RT and log RT were highly correlated, as expected, because log RT is a transformed version of the same response-time measure. Log RT was weakly positively associated with condition index, suggesting that some later-coded conditions tended to have slower responses. Log RT was also negatively associated with trial order, indicating that participants tended to respond faster later in the experiment, likely reflecting practice or task familiarization. Repetition was not meaningfully related to RT or log RT.
+
+The primary regression compared neutral trials with S+T+ homophone trials. The coefficient for homophone trials was positive, meaning that homophone trials had higher log RTs than neutral trials. This corresponds to slower color naming in the homophone condition. The effect was statistically significant, b = 0.072, SE = 0.029, t = 2.46, p = .014. This matches the paired t-test pattern and supports the main replication finding: after Chinese character naming, S+T+ homophones produced interference during English color naming.
+
+The full condition regression used neutral trials as the reference condition. In this model, the S+T+ homophone condition was significantly slower than neutral, b = 0.072, p = .015. The incongruent color-character condition also showed a strong positive effect, b = 0.174, p < .001, meaning that it produced substantially slower responses than neutral. In contrast, the congruent color-character, S+T− segment-only, and S−T+ tone-only conditions did not differ significantly from neutral. This pattern is consistent with the confirmatory t-tests: the clearest interference effects were found for the S+T+ homophone condition and the incongruent color-character condition.
+
+A controlled regression added trial order and repetition as predictors. The S+T+ homophone effect remained significant after these controls, b = 0.071, p = .014, and the incongruent color-character effect also remained significant, b = 0.172, p < .001. Trial order was a significant negative predictor of log RT, indicating that participants became faster over time. Repetition was not significant. The model fit improved when these controls were added: R² increased from .035 for the condition-only model to .075 for the controlled model. This suggests that trial order explained additional variation in response times, but it did not explain away the homophone interference effect.
+
+
+#### Mixed-effects analyses
+
+Mixed-effects models account for repeated observations from the same participants and the same characters. The main mixed-effects model tests S+T+ homophone trials against neutral trials with random effects for participants and characters.
+
+```{r mixed-effects-prep}
+theme_set(theme_classic())
+
+trial_order_col_mixed <- intersect(c("trial_index", "time_elapsed"), names(rt_clean))[1]
+
+if (!is.na(trial_order_col_mixed)) {
+  mixed_data <- rt_clean %>%
+    mutate(
+      condition = relevel(condition, ref = "Neutral"),
+      subject_id = factor(subject_id),
+      character = factor(character),
+      condition_index = as.numeric(condition),
+      repetition_numeric = if ("repetition" %in% names(.)) suppressWarnings(as.numeric(repetition)) else NA_real_,
+      original_row_order = row_number(),
+      trial_order_for_analysis = suppressWarnings(as.numeric(.data[[trial_order_col_mixed]]))
+    )
+} else {
+  mixed_data <- rt_clean %>%
+    mutate(
+      condition = relevel(condition, ref = "Neutral"),
+      subject_id = factor(subject_id),
+      character = factor(character),
+      condition_index = as.numeric(condition),
+      repetition_numeric = if ("repetition" %in% names(.)) suppressWarnings(as.numeric(repetition)) else NA_real_,
+      original_row_order = row_number(),
+      trial_order_for_analysis = as.numeric(original_row_order)
+    )
+}
+
+mixed_data <- mixed_data %>%
+  mutate(
+    trial_order_centered = trial_order_for_analysis - mean(trial_order_for_analysis, na.rm = TRUE),
+    repetition_centered = repetition_numeric - mean(repetition_numeric, na.rm = TRUE)
+  )
+
+write_csv(mixed_data, file.path(mixed_output_path, "mixed_effects_trial_level_data.csv"))
+```
+
+##### Mixed-effects graph 1: density plot by condition
+
+```{r mixed-density-plot, fig.width=9, fig.height=6}
+plot.mixed_density <- mixed_data %>%
+  ggplot(aes(x = log_rt, fill = condition)) +
+  geom_density(alpha = 0.35) +
+  geom_vline(
+    aes(xintercept = mean_log_rt, color = condition),
+    data = mixed_data %>%
+      group_by(condition) %>%
+      summarise(mean_log_rt = mean(log_rt, na.rm = TRUE), .groups = "drop")
+  ) +
+  labs(
+    title = "Distribution of Log Reaction Times by Condition",
+    x = "Log reaction time",
+    y = "Density",
+    fill = "Condition",
+    color = "Condition"
+  )
+
+plot.mixed_density
+
+ggsave(
+  file.path(mixed_output_path, "mixed_density_logrt_by_condition.png"),
+  plot.mixed_density,
+  width = 9,
+  height = 6,
+  dpi = 300
+)
+```
+
+The log RT distributions overlap substantially across all six conditions, showing that there is considerable trial-level variability within each condition. However, the condition means are not identical. The incongruent color-character condition appears shifted farthest to the right, meaning it had the slowest responses overall. The S+T+ homophone distribution also appears slightly right-shifted relative to neutral, which is consistent with the predicted homophone interference effect, although the overlap between the two distributions is large.
+
+##### Mixed-effects graph 2: mean RT with confidence intervals
+
+```{r mixed-mean-rt-ci, fig.width=9, fig.height=5}
+condition_summary_mixed <- mixed_data %>%
+  group_by(condition) %>%
+  summarise(
+    mean_rt = mean(rt, na.rm = TRUE),
+    se_rt = sd(rt, na.rm = TRUE) / sqrt(n()),
+    ci_lower = mean_rt - 1.96 * se_rt,
+    ci_upper = mean_rt + 1.96 * se_rt,
+    .groups = "drop"
+  )
+
+plot.mixed_condition_means <- condition_summary_mixed %>%
+  ggplot(aes(x = condition, y = mean_rt, group = 1)) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.15) +
+  labs(
+    title = "Mean RT by Condition",
+    subtitle = "Error bars show approximate 95% confidence intervals",
+    x = "Condition",
+    y = "Reaction time, ms"
+  ) +
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))
+
+plot.mixed_condition_means
+
+ggsave(
+  file.path(mixed_output_path, "mixed_mean_rt_by_condition_ci.png"),
+  plot.mixed_condition_means,
+  width = 9,
+  height = 5,
+  dpi = 300
+)
+```
+
+The mean RT plot shows the clearest descriptive pattern across conditions. The incongruent color-character condition produced the slowest responses, showing the strongest Stroop interference. The S+T+ homophone condition was also slower than neutral, which is the predicted direction for the main replication effect. In contrast, the S+T− segment-only condition was close to or slightly faster than neutral, while the S−T+ tone-only and congruent color-character conditions were closer to neutral. This pattern suggests that full Mandarin homophony produced more interference than partial segment or tone overlap alone.
+
+##### Mixed-effects graph 3: participant-level variability
+
+```{r mixed-subject-boxplot, fig.width=9, fig.height=5}
+plot.mixed_subject_boxplot <- mixed_data %>%
+  ggplot(aes(x = subject_id, y = log_rt)) +
+  geom_boxplot() +
+  labs(
+    title = "Participant-Level Variability in Log RT",
+    x = "Participant",
+    y = "Log reaction time"
+  ) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
+
+plot.mixed_subject_boxplot
+
+ggsave(
+  file.path(mixed_output_path, "mixed_subject_variability_boxplot.png"),
+  plot.mixed_subject_boxplot,
+  width = 9,
+  height = 5,
+  dpi = 300
+)
+```
+
+The participant-level boxplot shows that participants differed noticeably in their overall response speeds. Some participants had consistently higher log RTs, while others responded faster overall. There was also variation in the spread of responses within participants. This supports the use of participant random effects in the mixed-effects models, because the analysis should account for the fact that different participants have different baseline response speeds.
+
+##### Mixed-effects graph 4: character-level variability
+
+```{r mixed-character-boxplot, fig.width=10, fig.height=5}
+plot.mixed_character_boxplot <- mixed_data %>%
+  ggplot(aes(x = character, y = log_rt)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.15, alpha = 0.25) +
+  labs(
+    title = "Character-Level Variability in Log RT",
+    x = "Chinese character",
+    y = "Log reaction time"
+  ) +
+  theme(
+    text = element_text(family = "PingFang SC"),
+    axis.text.x = element_text(angle = 45, hjust = 1, family = "PingFang SC")
+  )
+
+plot.mixed_character_boxplot
+
+ggsave(
+  file.path(mixed_output_path, "mixed_character_variability_boxplot.png"),
+  plot.mixed_character_boxplot,
+  width = 10,
+  height = 5,
+  dpi = 300,
+  device = "png"
+)
+```
+
+The character-level plot shows that individual Chinese characters also differed in their response-time distributions. Some characters had slightly higher median log RTs or wider spreads than others. This suggests that responses were not only influenced by experimental condition but also by item-level differences among characters. Including character random effects in the mixed-effects models therefore helps account for variability associated with specific stimuli.
+
+##### Mixed-effects models
+
+```{r mixed-models}
+# Model set 1: condition as a fixed effect, random intercepts for participant and character
+mixed_null_intercepts <- lmer(
+  log_rt ~ 1 + (1 | subject_id) + (1 | character),
+  REML = FALSE,
+  data = mixed_data
+)
+
+mixed_condition_intercepts <- lmer(
+  log_rt ~ condition + (1 | subject_id) + (1 | character),
+  REML = FALSE,
+  data = mixed_data
+)
+
+mixed_condition_comparison <- anova(mixed_null_intercepts, mixed_condition_intercepts)
+mixed_condition_coefficients <- broom.mixed::tidy(mixed_condition_intercepts, effects = "fixed")
+
+# Model set 2: condition as a fixed effect, random slopes by participant
+mixed_null_subject_slopes <- lmer(
+  log_rt ~ 1 + (1 + condition || subject_id) + (1 | character),
+  REML = FALSE,
+  data = mixed_data,
+  control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+)
+
+mixed_condition_subject_slopes <- lmer(
+  log_rt ~ condition + (1 + condition || subject_id) + (1 | character),
+  REML = FALSE,
+  data = mixed_data,
+  control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+)
+
+mixed_subject_slopes_comparison <- anova(mixed_null_subject_slopes, mixed_condition_subject_slopes)
+mixed_subject_slopes_coefficients <- broom.mixed::tidy(mixed_condition_subject_slopes, effects = "fixed")
+
+# Primary mixed-effects model: S+T+ homophone vs. neutral
+mixed_homophone_data <- mixed_data %>%
+  filter(condition %in% c("Neutral", "S+T+ homophone")) %>%
+  mutate(
+    condition = droplevels(condition),
+    homophone_trial = factor(
+      if_else(condition == "S+T+ homophone", "Homophone", "Neutral"),
+      levels = c("Neutral", "Homophone")
+    )
+  )
+
+mixed_homophone_null <- lmer(
+  log_rt ~ 1 + (1 + homophone_trial || subject_id) + (1 | character),
+  REML = FALSE,
+  data = mixed_homophone_data,
+  control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+)
+
+mixed_homophone_model <- lmer(
+  log_rt ~ homophone_trial + (1 + homophone_trial || subject_id) + (1 | character),
+  REML = FALSE,
+  data = mixed_homophone_data,
+  control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+)
+
+mixed_homophone_comparison <- anova(mixed_homophone_null, mixed_homophone_model)
+mixed_homophone_coefficients <- broom.mixed::tidy(mixed_homophone_model, effects = "fixed")
+
+mixed_condition_comparison
+mixed_condition_coefficients
+mixed_subject_slopes_comparison
+mixed_subject_slopes_coefficients
+mixed_homophone_comparison
+mixed_homophone_coefficients
+
+capture.output(summary(mixed_condition_intercepts), file = file.path(mixed_output_path, "mixed_condition_random_intercepts_summary.txt"))
+capture.output(mixed_condition_comparison, file = file.path(mixed_output_path, "mixed_condition_random_intercepts_anova.txt"))
+capture.output(summary(mixed_condition_subject_slopes), file = file.path(mixed_output_path, "mixed_condition_subject_slopes_summary.txt"))
+capture.output(mixed_subject_slopes_comparison, file = file.path(mixed_output_path, "mixed_condition_subject_slopes_anova.txt"))
+capture.output(summary(mixed_homophone_model), file = file.path(mixed_output_path, "mixed_homophone_vs_neutral_summary.txt"))
+capture.output(mixed_homophone_comparison, file = file.path(mixed_output_path, "mixed_homophone_vs_neutral_anova.txt"))
+write_csv(mixed_condition_coefficients, file.path(mixed_output_path, "mixed_condition_random_intercepts_coefficients.csv"))
+write_csv(mixed_subject_slopes_coefficients, file.path(mixed_output_path, "mixed_condition_subject_slopes_coefficients.csv"))
+write_csv(mixed_homophone_coefficients, file.path(mixed_output_path, "mixed_homophone_vs_neutral_coefficients.csv"))
+
+singularity_check <- tibble(
+  model = c("mixed_condition_random_intercepts", "mixed_condition_subject_slopes"),
+  is_singular = c(isSingular(mixed_condition_intercepts), isSingular(mixed_condition_subject_slopes))
+)
+write_csv(singularity_check, file.path(mixed_output_path, "mixed_model_singularity_check.csv"))
+singularity_check
+```
+
+##### Mixed-effects graph 5: primary homophone comparison
+
+```{r mixed-primary-plot, fig.width=7, fig.height=5}
+plot.mixed_homophone <- mixed_homophone_data %>%
+  ggplot(aes(x = homophone_trial, y = log_rt)) +
+  geom_jitter(width = 0.12, alpha = 0.25) +
+  stat_summary(fun = mean, geom = "point", size = 4) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15) +
+  labs(
+    title = "Mixed-Effects Primary Comparison",
+    subtitle = "S+T+ homophone trials compared with neutral trials",
+    x = "Trial type",
+    y = "Log reaction time"
+  )
+
+plot.mixed_homophone
+
+ggsave(
+  file.path(mixed_output_path, "mixed_homophone_vs_neutral_plot.png"),
+  plot.mixed_homophone,
+  width = 7,
+  height = 5,
+  dpi = 300
+)
+```
+
+The primary homophone comparison plot shows that S+T+ homophone trials had a slightly higher mean log RT than neutral trials. This means that participants were descriptively slower on homophone trials, matching the direction predicted by the original Experiment 2 finding and the paired t-test analysis. However, the individual trial points show substantial overlap between the two conditions, which helps explain why the mixed-effects homophone-vs-neutral model did not reach statistical significance.
+
+# Summary of mixed-effects models
+
+The mixed-effects analyses provided a trial-level check of the main results while accounting for repeated observations from the same participants and the same characters. In the random-intercepts model, adding condition as a fixed effect significantly improved model fit compared with the null model, χ²(5) = 49.72, p < .001. This indicates that reaction times differed across Stroop conditions after accounting for baseline differences between participants and characters.
+
+The model with random slopes by participant also showed that adding condition significantly improved fit, χ²(5) = 21.03, p < .001. This suggests that condition remained an important predictor even when the model allowed the effect of condition to vary across participants.  
+
+The primary mixed-effects comparison directly tested S+T+ homophone trials against neutral trials. Homophone trials were numerically slower than neutral trials, but the model comparison was not statistically significant, χ²(1) = 2.20, p = .138. Therefore, the mixed-effects model showed the homophone effect in the predicted direction, but it was weaker than the paired t-test result once participant and character variability were modeled at the trial level.
+
+##### Mixed-effects controlled model
+
+```{r mixed-controlled-model}
+mixed_data_controls <- mixed_data %>%
+  filter(!is.na(trial_order_centered))
+
+mixed_condition_uncontrolled_same_data <- lmer(
+  log_rt ~ condition + (1 + condition || subject_id) + (1 | character),
+  REML = FALSE,
+  data = mixed_data_controls,
+  control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+)
+
+if (sum(!is.na(mixed_data_controls$repetition_centered)) > 0) {
+  mixed_condition_controlled <- lmer(
+    log_rt ~ condition + trial_order_centered + repetition_centered +
+      (1 + condition || subject_id) + (1 | character),
+    REML = FALSE,
+    data = mixed_data_controls,
+    control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+  )
+} else {
+  mixed_condition_controlled <- lmer(
+    log_rt ~ condition + trial_order_centered +
+      (1 + condition || subject_id) + (1 | character),
+    REML = FALSE,
+    data = mixed_data_controls,
+    control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+  )
+}
+
+mixed_control_comparison <- anova(mixed_condition_uncontrolled_same_data, mixed_condition_controlled)
+mixed_condition_uncontrolled_coefficients <- broom.mixed::tidy(mixed_condition_uncontrolled_same_data, effects = "fixed")
+mixed_condition_controlled_coefficients <- broom.mixed::tidy(mixed_condition_controlled, effects = "fixed")
+
+mixed_control_comparison
+mixed_condition_controlled_coefficients
+
+capture.output(summary(mixed_condition_uncontrolled_same_data), file = file.path(mixed_output_path, "mixed_condition_uncontrolled_same_data_summary.txt"))
+capture.output(summary(mixed_condition_controlled), file = file.path(mixed_output_path, "mixed_condition_controlled_summary.txt"))
+capture.output(mixed_control_comparison, file = file.path(mixed_output_path, "mixed_condition_controlled_anova_comparison.txt"))
+write_csv(mixed_condition_uncontrolled_coefficients, file.path(mixed_output_path, "mixed_condition_uncontrolled_same_data_coefficients.csv"))
+write_csv(mixed_condition_controlled_coefficients, file.path(mixed_output_path, "mixed_condition_controlled_coefficients.csv"))
+```
+
+Adding trial order and repetition significantly improved model fit compared with the uncontrolled mixed-effects model, χ²(2) = 85.97, p < .001. This improvement was mainly driven by trial order: responses became faster later in the experiment, β = -0.00043, p < .001. In contrast, repetition was not a significant predictor, β = -0.003, p = .817.
+
+Importantly, adding these controls did not substantially change the condition effects. The S+T+ homophone effect remained positive and marginal, β = 0.071, p = .076, which is very similar to the uncontrolled model estimate, β = 0.072, p = .078. The incongruent color-character condition also remained significantly slower than neutral, β = 0.170, p < .001. This suggests that trial order affected overall response speed, but it did not explain away the main condition pattern. However, both the uncontrolled and controlled models were singular, so these controlled mixed-effects results should be interpreted cautiously.
+
+##### Mixed-effects graph 6: homophone effect across trial order
+
+```{r mixed-trial-order-interaction, fig.width=8, fig.height=5}
+mixed_homophone_trial_order_null <- lmer(
+  log_rt ~ homophone_trial + trial_order_centered +
+    (1 + homophone_trial || subject_id) + (1 | character),
+  REML = FALSE,
+  data = mixed_homophone_data,
+  control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+)
+
+mixed_homophone_trial_order_interaction <- lmer(
+  log_rt ~ homophone_trial * trial_order_centered +
+    (1 + homophone_trial || subject_id) + (1 | character),
+  REML = FALSE,
+  data = mixed_homophone_data,
+  control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+)
+
+mixed_trial_order_interaction_comparison <- anova(
+  mixed_homophone_trial_order_null,
+  mixed_homophone_trial_order_interaction
+)
+
+mixed_trial_order_interaction_coefficients <- broom.mixed::tidy(
+  mixed_homophone_trial_order_interaction,
+  effects = "fixed"
+)
+
+mixed_trial_order_interaction_comparison
+mixed_trial_order_interaction_coefficients
+
+capture.output(summary(mixed_homophone_trial_order_interaction), file = file.path(mixed_output_path, "mixed_homophone_trial_order_interaction_summary.txt"))
+capture.output(mixed_trial_order_interaction_comparison, file = file.path(mixed_output_path, "mixed_homophone_trial_order_interaction_anova.txt"))
+write_csv(mixed_trial_order_interaction_coefficients, file.path(mixed_output_path, "mixed_homophone_trial_order_interaction_coefficients.csv"))
+
+plot.mixed_trial_order_interaction <- mixed_homophone_data %>%
+  ggplot(aes(x = trial_order_for_analysis, y = log_rt, color = homophone_trial)) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Mixed-Effects Interaction Visualization",
+    subtitle = "Homophone effect across trial order",
+    x = "Trial order",
+    y = "Log reaction time",
+    color = "Trial type"
+  )
+
+plot.mixed_trial_order_interaction
+
+ggsave(
+  file.path(mixed_output_path, "mixed_homophone_trial_order_interaction_plot.png"),
+  plot.mixed_trial_order_interaction,
+  width = 8,
+  height = 5,
+  dpi = 300
+)
+```
+The trial-order interaction model tested whether the homophone effect changed over the course of the experiment. Visually, both neutral and homophone trials showed a slight decrease in log RT over time, suggesting that participants became faster as the task progressed. However, the two regression lines were nearly parallel, indicating that the difference between homophone and neutral trials did not meaningfully change across trial order.
+
+The model comparison confirmed this pattern. Adding the homophone-by-trial-order interaction did not improve model fit, χ²(1) = 0.03, p = .871. The interaction coefficient was also very small and non-significant, β = -0.00003, p = .871. This suggests that the homophone effect was relatively stable across the experiment rather than increasing or decreasing over time. Trial order itself was significant, β = -0.00041, p < .001, meaning participants generally responded faster later in the task, but this practice effect did not specifically change the size of the homophone interference effect.
+
+##### Mixed-effects accuracy model
+
+```{r mixed-accuracy-model}
+accuracy_mixed_data <- critical_color %>%
+  filter(!is.na(correct)) %>%
+  mutate(
+    condition = relevel(condition, ref = "Neutral"),
+    subject_id = factor(subject_id),
+    character = factor(character),
+    correct_numeric = as.integer(correct == TRUE)
+  )
+
+accuracy_mixed_null <- glmer(
+  correct_numeric ~ 1 + (1 | subject_id) + (1 | character),
+  family = binomial,
+  data = accuracy_mixed_data,
+  control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+)
+
+accuracy_mixed_condition <- glmer(
+  correct_numeric ~ condition + (1 | subject_id) + (1 | character),
+  family = binomial,
+  data = accuracy_mixed_data,
+  control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 100000))
+)
+
+accuracy_mixed_comparison <- anova(accuracy_mixed_null, accuracy_mixed_condition)
+accuracy_mixed_coefficients <- broom.mixed::tidy(accuracy_mixed_condition, effects = "fixed")
+
+accuracy_mixed_comparison
+accuracy_mixed_coefficients
+
+capture.output(summary(accuracy_mixed_condition), file = file.path(mixed_output_path, "mixed_accuracy_condition_summary.txt"))
+capture.output(accuracy_mixed_comparison, file = file.path(mixed_output_path, "mixed_accuracy_condition_anova.txt"))
+write_csv(accuracy_mixed_coefficients, file.path(mixed_output_path, "mixed_accuracy_condition_coefficients.csv"))
+
+mixed_model_info <- tibble(
+  model = c(
+    "mixed_condition_random_intercepts",
+    "mixed_condition_subject_slopes",
+    "mixed_homophone_vs_neutral",
+    "mixed_condition_controlled",
+    "mixed_homophone_trial_order_interaction",
+    "mixed_accuracy_condition"
+  ),
+  model_type = c("lmer", "lmer", "lmer", "lmer", "lmer", "glmer logistic"),
+  outcome = c("log_rt", "log_rt", "log_rt", "log_rt", "log_rt", "correct_numeric"),
+  random_effects = c(
+    "(1 | subject_id) + (1 | character)",
+    "(1 + condition || subject_id) + (1 | character)",
+    "(1 + homophone_trial || subject_id) + (1 | character)",
+    "(1 + condition || subject_id) + (1 | character)",
+    "(1 + homophone_trial || subject_id) + (1 | character)",
+    "(1 | subject_id) + (1 | character)"
+  )
+)
+
+write_csv(mixed_model_info, file.path(mixed_output_path, "mixed_model_information.csv"))
+```
+
+The mixed-effects accuracy model tested whether accuracy differed by condition after accounting for repeated observations from the same participants and characters. Adding condition did not significantly improve model fit compared with the null accuracy model, χ²(5) = 7.13, p = .212. This suggests that accuracy did not differ reliably across Stroop conditions once participant and character variability were included. :contentReference[oaicite:0]{index=0}
+
+The coefficient table showed the same pattern. None of the condition coefficients were statistically significant. The S+T+ homophone condition did not significantly differ from neutral in accuracy, p = .532, and the incongruent color-character condition also did not reach significance, p = .118. Therefore, the main RT effects are unlikely to be explained by a speed-accuracy tradeoff. Participants were slower in some conditions, especially the homophone and incongruent conditions, but this was not accompanied by a reliable decrease in accuracy.
+
+## Discussion
+
+### Summary of Replication Attempt
+
+This replication provided support for the main finding of Li et al. (2017) Experiment 2. The primary confirmatory analysis showed that S+T+ homophone trials were significantly slower than neutral trials, with a mean interference effect of 73 ms, *t*(31) = 2.56, *p* = .016. This matches the direction of the original Experiment 2 result, where Li et al. found that congruent homophone trials were significantly slower than neutral trials after participants had recently named Chinese characters aloud. Therefore, the main confirmatory result can be considered a successful replication of the key homophone interference effect.
+
+However, the replication was not identical to the original in every respect. The incongruent color-character condition also produced strong interference, which is consistent with the expected Stroop pattern. The S+T− segment-only and S−T+ tone-only conditions did not differ significantly from neutral, matching the original Experiment 2 pattern. In contrast, the congruent color-character condition did not show the significant facilitation effect reported in the original study. For this reason, the overall pattern is best described as a partial but meaningful replication as the central homophone interference effect was replicated, but not every secondary effect from the original experiment was reproduced.
+
+### Commentary
+
+The exploratory analyses generally supported the interpretation that the homophone effect was not an artifact of one specific analysis choice. Accuracy was high across conditions, and neither the paired accuracy tests nor the mixed-effects accuracy model showed reliable condition differences. This suggests that the slower RTs in the homophone and incongruent conditions were not simply caused by a speed-accuracy tradeoff. The first-presentation-only analysis also found a significant S+T+ homophone interference effect, suggesting that the result was not driven only by repeated exposure to the same characters. The regression analyses similarly supported the main result: S+T+ homophone trials were significantly slower than neutral trials, and this effect remained after controlling for trial order and repetition.
+
+Furthermore, the mixed-effects models showed that condition significantly improved model fit overall, and the incongruent color-character effect was robust. The S+T+ homophone effect was consistently in the predicted direction, but the direct homophone-versus-neutral mixed-effects comparison was not statistically significant. This suggests that the homophone interference effect is present in the participant-level analysis but becomes less stable when trial-level participant and character variability are modeled directly. Therefore, the replication supports the main effect, but the strength of the evidence depends on the statistical model.
+
+The results are broadly consistent with Li et al.’s interpretation that recent use of the non-target language can increase activation of L1 phonology during L2 production. In the original study, homophone interference appeared in Experiment 2 after Chinese character naming, but not in Experiment 1 without prior character naming. The present replication also found that after Chinese character naming, homophone characters interfered with English color naming. This supports the idea that recent Chinese reading or naming experience can make Mandarin phonological representations more active, creating competition during English color naming.
+
+At the same time, there are several reasons to interpret the replication cautiously. The original study used DMDX and voice-key response timing, whereas this replication was conducted online and used keyboard responses for color naming. Keyboard RTs may not measure the exact same process as spoken color-naming latencies, especially because the original effect concerns speech production. The participant pool also differed: Li et al. tested graduate students from a university population, whereas this replication recruited participants through Prolific. These differences could plausibly increase variability in RTs and reduce the precision of some effects, especially in mixed-effects models.
+
+In conclusion, the replication supports the central claim of Li et al. (2017): recent L1 use can make L1 phonology more active and produce measurable interference in an L2 color-naming task. The strongest evidence comes from the planned paired t-test, first-presentation analysis, and regression analyses. The mixed-effects results are more cautious, showing the same direction but weaker statistical support for the homophone effect. Therefore, I would interpret this study as a successful replication of the primary planned effect, but a partial replication of the full original result pattern.
