@@ -1,28 +1,35 @@
-# Project Template
+# Mandarin-English Bilingual Stroop Replication Project
 
-This is an example of how a project repo should be organized.
+This project is a replication of Experiment 2 from Li, Wang, and Lin (2017), which examined whether recent Mandarin use activates Mandarin phonology during English color naming in Mandarin-English bilinguals.
 
-It contains several subdirectories that will contain standard elements of almost every project:
+The experiment uses a bilingual Stroop paradigm. Participants first read Chinese characters aloud in Mandarin, then complete an English color-naming task. In the color-naming task, Chinese characters are printed in different ink colors, and participants respond with the English color name while ignoring the character itself.
 
-- `analysis`: This subdirectory will typically contain Python or R notebooks for making visualizations and statistical analyses. `/analysis/plots/` is the path to use when saving out `.pdf`/`.png` plots, a small number of which may be then polished and formatted for figures in a publication.
-- `data`:  This subdirectory is where you put the raw and processed data from behavioral experiments and computational simulations. These data serve as input to `analysis`. *Important: Before pushing any csv files containing human behavioral data to a public code repository, triple check that these data files are properly anonymized. This means no bare Worker ID's.*
-- `experiments`: If this is a project that will involve collecting human behavioral data, this is where you want to put the code to run the experiment. If this is a project that will involve evaluation of a computational model on a task, this is also where you want to put the task code (which imports the `model`).
-- `model`: If this is a cognitive modeling project, this is where you want to put code for running the model. If this project involves training neural networks, you would put training scripts in here.
+The main condition of interest is the S-plus T-plus homophone condition. These are characters that are not color words, but share the same syllable segment and tone as a Chinese color word. For example, 洪 means “flood,” but it is pronounced *hong2*, the same as 红, meaning “red.” If Mandarin phonology is active during English color naming, these homophones should interfere with participants’ responses.
 
-# Project documentation 
+The goal of this project is to test whether the original homophone interference effect replicates. Specifically, the main analysis compares reaction times in the S-plus T-plus homophone condition against the neutral condition after participants have recently named Chinese characters aloud.
 
-## Project Log
+## Repository Structure
 
-When we spin up a new project, the first thing we'll do to collect our thoughts is to create a [Notion project](https://www.notion.so/social-interaction-lab/010f6821fc4e4aa1b7ec07716fd6cdc1?v=028218a3e35a4c079194b04b347a4d09&pvs=4) or a Google Doc to function as a running "log" of project updates and meeting notes. 
-The point is to have a file format that is easy to share and flexible in format. 
-This Google Doc / Notion page is also where you should take notes during our meetings, and collect high-level TODO items, especially those that are not immediately actionable. 
+- `analysis`: Contains R/Quarto analysis files for cleaning the data, running statistical tests, and generating figures.
+- `data`: Contains raw and processed participant data from the experiment. Any human behavioral data should be anonymized before being shared or pushed to a public repository.
+- `experiments`: Contains the code used to run the online Stroop experiment.
+- `analysis_outputs`: Contains generated results files, including cleaned summaries, statistical test outputs, and figures.
+- `regression_outputs`: Contains trial-level regression outputs and related plots.
+- `mixed_effects_outputs`: Contains mixed-effects model outputs and diagnostic figures.
 
-## Preregistration
+## Main Research Question
 
-Once we are in the later stages of desigining a new human behavioral experiment and preparing to run our first pilot, we will write up a pre-registration and either put it under version control within the project repo OR post it to the [Open Science Framework](https://osf.io/). We subscribe to the philosophy that ["pre-registrations are a plan, not a prison."](https://www.cos.io/blog/preregistration-plan-not-prison) They help us transparently document our thinking and decision-making process both for ourselves and for others, and will help us distinguish between confirmatory and exploratory findings. We do not believe that there is a single best way to write a pre-registration, but in many cases a more detailed plan will help us to clarify our experimental logic and set up our analyses accordingly (i.e., what each hypothesis predicts, which measures and analyses we will use to evaluate each relevant hypothesis). 
+Does recent Mandarin character naming activate Mandarin phonology strongly enough to interfere with English color naming in Mandarin-English bilinguals?
 
-## Manuscripts 
+## Main Prediction
 
-When we are preparing to write up a manuscript (or a conference paper), we will start an [Overleaf](https://www.overleaf.com/) project. 
-This is where you will want to place your LaTeX source `.tex` files for your paper and your publication-ready figures as high-resolution `.pdf` files in the `figures` directory. 
-We typically format and fine-tune our figures using Adobe Illustrator.
+If recent Chinese use activates Mandarin phonology, then participants should be slower in the S-plus T-plus homophone condition than in the neutral condition.
+
+## Key Analysis
+
+The primary confirmatory analysis compares participant-level mean log reaction times between:
+
+- S-plus T-plus homophone trials
+- Neutral trials
+
+This comparison tests whether homophone characters produce significant interference relative to neutral characters.
