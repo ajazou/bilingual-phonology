@@ -8,24 +8,15 @@ The main condition of interest is the S-plus T-plus homophone condition. These a
 
 The goal of this project is to test whether the original homophone interference effect replicates. Specifically, the main analysis compares reaction times in the S-plus T-plus homophone condition against the neutral condition after participants have recently named Chinese characters aloud.
 
-## Repository Structure
-
-- `analysis`: Contains R/Quarto analysis files for cleaning the data, running statistical tests, and generating figures.
-- `data`: Contains raw and processed participant data from the experiment. Any human behavioral data should be anonymized before being shared or pushed to a public repository.
-- `experiments`: Contains the code used to run the online Stroop experiment.
-- `analysis_outputs`: Contains generated results files, including cleaned summaries, statistical test outputs, and figures.
-- `regression_outputs`: Contains trial-level regression outputs and related plots.
-- `mixed_effects_outputs`: Contains mixed-effects model outputs and diagnostic figures.
-
-## Main Research Question
+## Research Question
 
 Does recent Mandarin character naming activate Mandarin phonology strongly enough to interfere with English color naming in Mandarin-English bilinguals?
 
-## Main Prediction
+## Hypothesis
 
 If recent Chinese use activates Mandarin phonology, then participants should be slower in the S-plus T-plus homophone condition than in the neutral condition.
 
-## Key Analysis
+## Analysis
 
 The primary confirmatory analysis compares participant-level mean log reaction times between:
 
