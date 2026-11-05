@@ -1,5 +1,4 @@
-// Experiment 2 Replication Stimuli
-// Based on Li, Wang, & Lin (2017), Experiment 2.
+// Stimuli
 
 const criticalStimuli = [
   {
