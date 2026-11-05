@@ -1,6 +1,4 @@
-# Mandarin-English Bilingual Stroop Replication Project
-
-This project is a replication of Experiment 2 from Li, Wang, and Lin (2017), which examined whether recent Mandarin use activates Mandarin phonology during English color naming in Mandarin-English bilinguals.
+# Mandarin-English Bilingual Stroop Project
 
 The experiment uses a bilingual Stroop paradigm. Participants first read Chinese characters aloud in Mandarin, then complete an English color-naming task. In the color-naming task, Chinese characters are printed in different ink colors, and participants respond with the English color name while ignoring the character itself.
 
