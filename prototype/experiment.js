@@ -1,5 +1,4 @@
-// Experiment 2 Replication: Recent Chinese reading experience and English color naming
-// Based on Li, Wang, & Lin (2017), Experiment 2
+// Recent Chinese reading experience and English color naming
 
 const jsPsych = initJsPsych({
   show_progress_bar: true,
